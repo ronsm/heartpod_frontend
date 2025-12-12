@@ -1,0 +1,32 @@
+version: '3.8'
+
+services:
+  build:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    volumes:
+      - .:/app
+      - gradle-cache:/root/.gradle
+    environment:
+      - GRADLE_USER_HOME=/root/.gradle
+    command: ./gradlew assembleDebug --no-daemon
+
+  emulator:
+    build:
+      context: .
+      dockerfile: Dockerfile.emulator
+    privileged: true
+    volumes:
+      - /tmp/.X11-unix:/tmp/.X11-unix
+      - ./app/build/outputs/apk/debug:/apk
+    environment:
+      - DISPLAY=${DISPLAY}
+    devices:
+      - /dev/kvm
+    ports:
+      - "5554:5554"
+      - "5555:5555"
+
+volumes:
+  gradle-cache:

@@ -1,0 +1,70 @@
+FROM debian:bullseye-slim
+
+# Install dependencies for Android Emulator
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    openjdk-17-jdk \
+    wget \
+    unzip \
+    ca-certificates \
+    libx11-6 \
+    libxext6 \
+    libxrender1 \
+    libxtst6 \
+    libxi6 \
+    libfreetype6 \
+    libpulse0 \
+    libasound2 \
+    libnss3 \
+    libdrm2 \
+    libgl1 \
+    libgl1-mesa-dri \
+    libxkbfile1 \
+    libxcomposite1 \
+    libxcursor1 \
+    libxdamage1 \
+    libxcb-cursor0 \
+    libxkbcommon-x11-0 \
+    && rm -rf /var/lib/apt/lists/*
+
+# Set up Android SDK
+ENV ANDROID_SDK_ROOT=/opt/android-sdk
+ENV PATH=${PATH}:${ANDROID_SDK_ROOT}/cmdline-tools/latest/bin:${ANDROID_SDK_ROOT}/platform-tools:${ANDROID_SDK_ROOT}/emulator
+
+# Download and install Android command-line tools
+RUN mkdir -p ${ANDROID_SDK_ROOT}/cmdline-tools && \
+    wget -q https://dl.google.com/android/repository/commandlinetools-linux-11076708_latest.zip && \
+    unzip -q commandlinetools-linux-11076708_latest.zip -d ${ANDROID_SDK_ROOT}/cmdline-tools && \
+    mv ${ANDROID_SDK_ROOT}/cmdline-tools/cmdline-tools ${ANDROID_SDK_ROOT}/cmdline-tools/latest && \
+    rm commandlinetools-linux-11076708_latest.zip
+
+# Accept licenses and install SDK components including emulator
+RUN yes | sdkmanager --licenses && \
+    sdkmanager "platform-tools" \
+    "platforms;android-33" \
+    "build-tools;33.0.2" \
+    "emulator" \
+    "system-images;android-33;google_apis;x86_64"
+
+# Create AVD
+RUN echo "no" | avdmanager create avd \
+    --name test_device \
+    --package "system-images;android-33;google_apis;x86_64" \
+    --device "pixel_5"
+
+# Set working directory
+WORKDIR /app
+
+# Startup script
+COPY <<EOF /start-emulator.sh
+#!/bin/bash
+emulator -avd test_device -no-snapshot -no-audio -gpu swiftshader_indirect &
+sleep 30
+adb wait-for-device
+adb install /apk/app-debug.apk
+adb shell am start -n org.hwu.care.healthub/.MainActivity
+tail -f /dev/null
+EOF
+
+RUN chmod +x /start-emulator.sh
+
+CMD ["/start-emulator.sh"]
