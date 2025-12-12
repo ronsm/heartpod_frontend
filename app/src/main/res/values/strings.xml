@@ -1,0 +1,5 @@
+<resources>
+    <string name="app_name">Healthub</string>
+    <string name="device_image_description">Image of the health device</string>
+    <string name="healthcare_devices_header">Your Healthcare Monitoring Devices</string>
+</resources>
