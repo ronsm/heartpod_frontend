@@ -75,7 +75,7 @@ android-healthub-main/
 
 ---
 
-## ⚙️ Configuration
+## Configuration
 
 Update the OpenHAB server IP in:
 `app/src/main/java/org/hwu/care/healthub/DeviceDetailActivity.kt`
