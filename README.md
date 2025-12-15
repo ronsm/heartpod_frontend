@@ -1,6 +1,6 @@
 # Healthub Android App - Quick Start Guide
 
-## 🚀 For Non-Developers
+## For Non-Developers
 
 Everything is containerized! You don't need to install Android Studio, SDKs, or any development tools.
 
@@ -10,7 +10,7 @@ Everything is containerized! You don't need to install Android Studio, SDKs, or 
 
 ---
 
-## 📱 Test the App (Emulator)
+## Test the App (Emulator)
 
 Run this single command:
 
@@ -28,7 +28,7 @@ This will:
 
 ---
 
-## 🔨 Build the App
+## Build the App
 
 ```bash
 docker compose run --rm build
@@ -38,7 +38,7 @@ Output: `app/build/outputs/apk/debug/app-debug.apk`
 
 ---
 
-## 📲 Install on Temi Robot
+## Install on Temi Robot
 
 ### Option 1: USB Cable
 ```bash
@@ -53,7 +53,7 @@ adb install app/build/outputs/apk/debug/app-debug.apk
 
 ---
 
-## 🔄 Make Changes
+## Make Changes
 
 1. Edit code in any text editor
 2. Rebuild: `docker compose run --rm build`
@@ -62,7 +62,7 @@ adb install app/build/outputs/apk/debug/app-debug.apk
 
 ---
 
-## 📁 Project Structure
+## Project Structure
 
 ```
 android-healthub-main/
@@ -88,7 +88,7 @@ Then rebuild.
 
 ---
 
-## 🆘 Troubleshooting
+## Troubleshooting
 
 **Emulator won't start:**
 - Ensure KVM is enabled: `ls /dev/kvm`
