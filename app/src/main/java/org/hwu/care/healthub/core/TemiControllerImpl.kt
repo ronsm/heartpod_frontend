@@ -20,6 +20,6 @@ class TemiControllerImpl : TemiController {
     }
 
     override fun showReading(reading: Reading) {
-        speak("I recorded a reading of ${reading.value} ${reading.unit}.")
+        speak("Your reading is: ${reading.value}")
     }
 }

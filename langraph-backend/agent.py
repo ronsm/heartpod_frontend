@@ -1,5 +1,5 @@
 from langgraph.graph import StateGraph, END
-from langchain_openai import ChatOpenAI
+from langchain_google_genai import ChatGoogleGenerativeAI
 from typing import TypedDict, Optional, Dict, Any
 import operator
 from typing import Annotated
@@ -23,7 +23,8 @@ class AgentState(TypedDict):
 
 def extract_intent(state: AgentState) -> AgentState:
     """Extract user intent from input"""
-    llm = ChatOpenAI(model="gpt-4o-mini", temperature=0.3)
+    # Using Gemini 1.5 Flash
+    llm = ChatGoogleGenerativeAI(model="gemini-1.5-flash", temperature=0.1)
     
     prompt = f"""
     You are a healthcare assistant robot helping patients with health screenings.
@@ -56,36 +57,35 @@ def extract_intent(state: AgentState) -> AgentState:
 
 def determine_next_action(state: AgentState) -> AgentState:
     """Determine next FSM state and robot response"""
-    llm = ChatOpenAI(model="gpt-4o-mini", temperature=0.7)
+    # Using Gemini 1.5 Flash
+    llm = ChatGoogleGenerativeAI(model="gemini-1.5-flash", temperature=0.7)
     
     prompt = f"""
-    You are a friendly healthcare assistant robot named HealthHub.
+    You are a friendly healthcare assistant robot named HealthHub on a Temi robot.
+    You are currently interacting with a patient.
     
     Context:
     - User said: "{state['user_input']}"
     - User's intent: {state['intent']}
     - Current system state: {state['current_state']}
+    - Sensor data/Context: {state['context']}
+    
+    CRITICAL SAFETY RULES:
+    1. NEVER provide a medical diagnosis (e.g., don't say "You have hypertension").
+    2. NEVER recommend specific medications.
+    3. If readings are abnormal, say "Your readings are outside the typical range" and suggest consulting a professional.
+    4. Be empathetic but professional. Use simple language.
+    5. Always ask for consent/readiness before starting a check-up.
     
     Your task:
     1. Generate a natural, empathetic response (1-2 sentences)
     2. Determine if we should transition to a new state
     3. Specify any UI action needed
     
-    Guidelines:
-    - Be warm and encouraging
-    - Use simple language
-    - Keep responses brief
-    - For health concerns, acknowledge but don't diagnose
-    
     Respond in this exact format:
     SPEECH: [your response]
     NEXT_STATE: [state name or NONE]
     ACTION: [action name or NONE]
-    
-    Example:
-    SPEECH: Great job! Now let's measure your blood pressure.
-    NEXT_STATE: NavigateToDevice
-    ACTION: show_instructions
     """
     
     response = llm.invoke(prompt)

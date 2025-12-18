@@ -39,7 +39,7 @@ class DeviceDetailActivity : AppCompatActivity() {
     // --- Hardcoded values for testing ---
     //LOCAL OPENHAB (on Healthub)
     private val HARDCODED_API_TOKEN = "oh.NHSTHT.QViW3MMVzsp56R8PNt3maoKrv9Z7iP7LNRymiPG25bYqlOXgV0BgggwQ8ZCbBbBdPTy6WxbBW0u0BBqCkiG9w" // Replace with your real token
-    private val HARDCODED_OPENHAB_IP = "192.168.2.198" //e.g., "192.168.1.100" or "your-domain.com"
+    private val HARDCODED_OPENHAB_IP = "192.168.2.150" //e.g., "192.168.1.100" or "your-domain.com"
 
     //LARA OPENHAB
     //private val HARDCODED_API_TOKEN = "oh.MCP.tLQBOZFwd3UAnubBDKJZXoo7PV1tRXCm9fbLDoeRGJrJA1yIUCAyxCfcxdaixCuzrVg4c0khi1hef6XVu3yXQ" // Replace with your real token

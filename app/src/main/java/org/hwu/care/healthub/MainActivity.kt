@@ -16,13 +16,18 @@ import org.hwu.care.healthub.nlu.InterpretResponse
 import org.hwu.care.healthub.nlu.LangGraphClient
 import org.hwu.care.healthub.speech.SpeechRecognizer
 import org.hwu.care.healthub.ui.screens.*
+import java.util.UUID
+import com.robotemi.sdk.Robot
+import com.robotemi.sdk.listeners.OnRobotReadyListener
+import com.robotemi.sdk.NlpResult
 
-class MainActivity : ComponentActivity() {
+class MainActivity : ComponentActivity(), OnRobotReadyListener, Robot.NlpListener {
 
     private lateinit var stateMachine: StateMachine
     private lateinit var temiController: TemiController
     private lateinit var sessionManager: SessionManager
     private lateinit var intentParser: IntentParser
+    private val robot = Robot.getInstance()
     private lateinit var llmClient: LangGraphClient
     private lateinit var speechRecognizer: SpeechRecognizer
     private val sessionId = java.util.UUID.randomUUID().toString()
@@ -39,7 +44,7 @@ class MainActivity : ComponentActivity() {
         // 2. Initialize NLU Components
         intentParser = IntentParser()
         llmClient = LangGraphClient(
-            baseUrl = "http://192.168.2.150:8000"  // LangGraph on Raspberry Pi 2
+            baseUrl = "http://192.168.2.150:8000" // LangGraph Agent on Pi 2
         )
         
         // 3. Initialize Speech Recognition
@@ -48,15 +53,34 @@ class MainActivity : ComponentActivity() {
         }
         speechRecognizer.initialize()
         speechRecognizer.startListening()
+        
+        // 4. Register Temi NLP Listener for voice capture
+        robot.addOnRobotReadyListener(this)
+        robot.addNlpListener(this)
+        Log.d("MainActivity", "Temi NLP listener registered")
+        
+        // 5. Request microphone permission for speech recognition
+        if (checkSelfPermission(android.Manifest.permission.RECORD_AUDIO) != android.content.pm.PackageManager.PERMISSION_GRANTED) {
+            requestPermissions(arrayOf(android.Manifest.permission.RECORD_AUDIO), 1)
+        }
 
-
-        // 2. Setup UI
+        // 6. Setup UI
         setContent {
             val state by stateMachine.state.collectAsState()
 
             when (val s = state) {
-                is State.Idle -> WelcomeScreen(onStart = { sendEvent(Event.Start) })
-                is State.Welcome -> WelcomeScreen(onStart = { sendEvent(Event.UserConfirm) }) // Reusing for now
+                is State.Idle -> WelcomeScreen(
+                    onStart = { sendEvent(Event.Start) },
+                    onExit = { finish() }
+                )
+                is State.Welcome -> {
+                    // Voice disabled - Temi's askQuestion() forces NLP processing
+                    // Use button navigation for reliable UX
+                    WelcomeScreen(
+                        onStart = { sendEvent(Event.UserConfirm) },
+                        onExit = { finish() }
+                    )
+                }
                 is State.NavigateToDevice -> {
                     // Show a "Moving..." screen or just wait for arrival
                     DeviceInstructionScreen(s.deviceId, onReady = { sendEvent(Event.DeviceArrived) }) // Simulating arrival
@@ -69,7 +93,7 @@ class MainActivity : ComponentActivity() {
                     DeviceInstructionScreen(s.deviceId, onReady = { sendEvent(Event.ReadingReady) }) 
                 }
                 is State.ReadingCapture -> {
-                    // Show "Capturing..."
+                    LoadingScreen(message = "Capturing reading...")
                 }
                 is State.ShowReading -> ReadingDisplayScreen(
                     reading = s.reading,
@@ -77,7 +101,17 @@ class MainActivity : ComponentActivity() {
                     onRetry = { sendEvent(Event.Retry) }
                 )
                 is State.ErrorRecover -> {
-                    // Show Error Screen
+                    ErrorScreen(
+                        message = s.message,
+                        onRetry = { sendEvent(Event.Retry) },
+                        onExit = { finish() }
+                    )
+                }
+                is State.ConfirmSession -> {
+                    ConfirmSessionScreen(
+                        onContinue = { sendEvent(Event.UserConfirm) },
+                        onFinish = { finish() }
+                    )
                 }
                 else -> {}
             }
@@ -182,5 +216,29 @@ class MainActivity : ComponentActivity() {
             "ShowReading" -> Event.ReadingReady
             else -> null
         }
+    }
+    
+    /**
+     * Temi Robot Ready Listener
+     */
+    override fun onRobotReady(isReady: Boolean) {
+        if (isReady) {
+            Log.d("MainActivity", "Robot is ready, NLP listener active")
+        }
+    }
+
+    /**
+     * Temi NLP Listener - Captures voice responses
+     */
+    override fun onNlpCompleted(nlpResult: NlpResult) {
+        Log.d("MainActivity", "NLP Result received: ${nlpResult.action}")
+        // Temi NLP results are handled via askQuestion callback
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        robot.removeOnRobotReadyListener(this)
+        robot.removeNlpListener(this)
+        speechRecognizer.destroy()
     }
 }
