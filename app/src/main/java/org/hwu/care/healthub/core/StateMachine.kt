@@ -15,6 +15,15 @@ sealed class State {
     data class ReadingCapture(val deviceId: String) : State()
     data class ShowReading(val reading: Reading) : State()
     object Questionnaire : State()
+    
+    // Questionnaire states
+    object AskPersonalDetails : State()
+    object AskSmokingStatus : State()
+    object AskAlcoholConsumption : State()
+    object AskExerciseFrequency : State()
+    object AskHeightWeight : State()
+    object ReviewQuestionnaire : State()
+    
     object ConfirmSession : State()
     data class ErrorRecover(val message: String) : State()
     object End : State()
@@ -28,6 +37,14 @@ sealed class Event {
     object Timeout : Event()
     object Retry : Event()
     object Abort : Event()
+    
+    // Questionnaire events
+    data class PersonalDetailsProvided(val firstName: String, val lastName: String, val dob: String) : Event()
+    data class SmokingAnswered(val status: String, val perDay: Int? = null, val quitDate: String? = null) : Event()
+    data class AlcoholAnswered(val unitsPerWeek: Int) : Event()
+    data class ExerciseAnswered(val timesPerWeek: Int) : Event()
+    data class HeightWeightProvided(val heightCm: Float, val weightKg: Float) : Event()
+    object QuestionnaireComplete : Event()
 }
 
 class StateMachine(
@@ -44,8 +61,10 @@ class StateMachine(
         when (currentState) {
             is State.Idle -> {
                 if (event is Event.Start) {
-                    temi.speak("Welcome to HealthHub. Shall we start?")
-                    _state.value = State.Welcome
+                    val firstDevice = "oximeter" // TODO: Get from config
+                    temi.speak("Okay, starting screening. Moving to the $firstDevice station.")
+                    temi.navigateTo(firstDevice)
+                    _state.value = State.NavigateToDevice(firstDevice)
                 }
             }
             is State.Welcome -> {

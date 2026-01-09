@@ -10,9 +10,14 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import org.hwu.care.healthub.ui.components.VoiceButton
 
 @Composable
-fun WelcomeScreen(onStart: () -> Unit, onExit: (() -> Unit)? = null) {
+fun WelcomeScreen(
+    onStart: () -> Unit,
+    onExit: (() -> Unit)? = null,
+    onVoiceInput: (String) -> Unit = {}
+) {
     Box(modifier = Modifier.fillMaxSize()) {
         // Exit button in top-right corner
         if (onExit != null) {
@@ -35,9 +40,23 @@ fun WelcomeScreen(onStart: () -> Unit, onExit: (() -> Unit)? = null) {
         ) {
             Text("Welcome to HealthHub", fontSize = 32.sp)
             Spacer(modifier = Modifier.height(32.dp))
-            Button(onClick = onStart, modifier = Modifier.size(width = 200.dp, height = 60.dp)) {
-                Text("Start Screening", fontSize = 24.sp)
+            
+            Button(
+                onClick = onStart,
+                modifier = Modifier.size(width = 300.dp, height = 80.dp)
+            ) {
+                Text("Start Screening", fontSize = 28.sp)
             }
+            
+            Spacer(modifier = Modifier.height(24.dp))
+            
+            Text("Or say it:", fontSize = 20.sp, color = Color.Gray)
+            
+            Spacer(modifier = Modifier.height(16.dp))
+            
+            VoiceButton(
+                onSpeechResult = onVoiceInput
+            )
         }
     }
 }

@@ -6,6 +6,7 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.LaunchedEffect
 import androidx.lifecycle.lifecycleScope
 import kotlinx.coroutines.launch
 import org.hwu.care.healthub.core.*
@@ -19,9 +20,13 @@ import org.hwu.care.healthub.ui.screens.*
 import java.util.UUID
 import com.robotemi.sdk.Robot
 import com.robotemi.sdk.listeners.OnRobotReadyListener
+import com.robotemi.sdk.SttLanguage
 import com.robotemi.sdk.NlpResult
 
-class MainActivity : ComponentActivity(), OnRobotReadyListener, Robot.NlpListener {
+class MainActivity : ComponentActivity(), OnRobotReadyListener, Robot.NlpListener, Robot.AsrListener {
+
+    // Set to true to test on emulator without robot
+    private val USE_MOCK_ROBOT = false
 
     private lateinit var stateMachine: StateMachine
     private lateinit var temiController: TemiController
@@ -30,6 +35,8 @@ class MainActivity : ComponentActivity(), OnRobotReadyListener, Robot.NlpListene
     private val robot = Robot.getInstance()
     private lateinit var llmClient: LangGraphClient
     private lateinit var speechRecognizer: SpeechRecognizer
+    private var isListeningForVoice = false
+    private var isInConversationMode = false
     private val sessionId = java.util.UUID.randomUUID().toString()
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -48,16 +55,20 @@ class MainActivity : ComponentActivity(), OnRobotReadyListener, Robot.NlpListene
         )
         
         // 3. Initialize Speech Recognition
+        // (SpeechRecognizer is kept but ignored in favor of Temi SDK for now)
         speechRecognizer = SpeechRecognizer(this) { text ->
             handleSpeechInput(text)
         }
         speechRecognizer.initialize()
-        speechRecognizer.startListening()
         
-        // 4. Register Temi NLP Listener for voice capture
+        // Start listening immediately removed for better UX on home screen
+        // startVoiceCapture()
+        
+        // 4. Register Temi listeners
         robot.addOnRobotReadyListener(this)
         robot.addNlpListener(this)
-        Log.d("MainActivity", "Temi NLP listener registered")
+        robot.addAsrListener(this)  // ASR listener for continuous speech recognition
+        Log.d("MainActivity", "Temi listeners registered (ASR + NLP)")
         
         // 5. Request microphone permission for speech recognition
         if (checkSelfPermission(android.Manifest.permission.RECORD_AUDIO) != android.content.pm.PackageManager.PERMISSION_GRANTED) {
@@ -69,23 +80,39 @@ class MainActivity : ComponentActivity(), OnRobotReadyListener, Robot.NlpListene
             val state by stateMachine.state.collectAsState()
 
             when (val s = state) {
-                is State.Idle -> WelcomeScreen(
-                    onStart = { sendEvent(Event.Start) },
-                    onExit = { finish() }
-                )
+                is State.Idle -> {
+                    // No auto-listen on Idle to allow user to see Home screen first
+                    WelcomeScreen(
+                        onStart = { sendEvent(Event.Start) },
+                        onExit = { finish() },
+                        onVoiceInput = { text -> startVoiceCapture() }
+                    )
+                }
                 is State.Welcome -> {
-                    // Voice disabled - Temi's askQuestion() forces NLP processing
-                    // Use button navigation for reliable UX
+                    // Auto-listen when arriving at Welcome screen
+                    LaunchedEffect(Unit) {
+                        Log.d("MainActivity", "Auto-starting voice capture for Welcome")
+                        startVoiceCapture()
+                    }
                     WelcomeScreen(
                         onStart = { sendEvent(Event.UserConfirm) },
-                        onExit = { finish() }
+                        onExit = { finish() },
+                        onVoiceInput = { text ->
+                            startVoiceCapture()
+                        }
                     )
                 }
                 is State.NavigateToDevice -> {
                     // Show a "Moving..." screen or just wait for arrival
                     DeviceInstructionScreen(s.deviceId, onReady = { sendEvent(Event.DeviceArrived) }) // Simulating arrival
                 }
-                is State.ShowInstructions -> DeviceInstructionScreen(s.deviceId, onReady = { sendEvent(Event.UserConfirm) })
+                is State.ShowInstructions -> {
+                    // Auto-listen for "Ready" or "Yes"
+                    LaunchedEffect(Unit) {
+                        startVoiceCapture()
+                    }
+                    DeviceInstructionScreen(s.deviceId, onReady = { sendEvent(Event.UserConfirm) })
+                }
                 is State.AwaitUse -> {
                     // Show "Waiting for reading..."
                     // In real app, we'd poll or wait for MQTT
@@ -131,11 +158,17 @@ class MainActivity : ComponentActivity(), OnRobotReadyListener, Robot.NlpListene
     private fun handleSpeechInput(text: String) {
         Log.d("MainActivity", "User said: $text")
         
+        // Show what the app heard on screen for debugging
+        runOnUiThread {
+            android.widget.Toast.makeText(this, "Heard: $text", android.widget.Toast.LENGTH_SHORT).show()
+        }
+        
         // 1. Try local intent parser first (fast, offline)
         val intent = intentParser.parse(text)
         
         lifecycleScope.launch {
             when (intent) {
+                is Intent.Start -> sendEvent(Event.Start)
                 is Intent.Confirm -> sendEvent(Event.UserConfirm)
                 is Intent.Cancel -> sendEvent(Event.Abort)
                 is Intent.Retry -> sendEvent(Event.Retry)
@@ -219,26 +252,81 @@ class MainActivity : ComponentActivity(), OnRobotReadyListener, Robot.NlpListene
     }
     
     /**
+     * Start voice capture using askQuestion
+     */
+    private fun startVoiceCapture() {
+        Log.d("MainActivity", "Starting conversation via askQuestion")
+        // Minimal valid prompt to ensure microphone opens
+        robot.askQuestion("Listening") 
+        isInConversationMode = true
+    }
+    
+    private fun stopVoiceCapture() {
+        isInConversationMode = false
+        robot.finishConversation()
+    }
+    
+    /**
+     * Temi ASR Listener
+     * Captures speech real-time
+     */
+    override fun onAsrResult(asrText: String, language: SttLanguage) {
+        Log.d("MainActivity", "ASR Result: $asrText")
+        
+        if (asrText.isNotBlank()) {
+            val intent = intentParser.parse(asrText)
+            
+            // If we match a command, interrupt Temi immediately!
+            if (intent !is Intent.Unknown) {
+                // HACK: KILL THE CONVERSATION INSTANTLY TO PREVENT "I DON'T UNDERSTAND"
+                robot.finishConversation() 
+                handleSpeechInput(asrText)
+            } else {
+                 handleSpeechInput(asrText)
+            }
+        }
+    }
+
+    override fun onNlpCompleted(nlpResult: NlpResult) {
+        Log.d("MainActivity", "NLP Result: ${nlpResult.action}")
+        
+        // Double Tap Silence
+        temiController.speak(" ") 
+        
+        val text = nlpResult.action
+        if (text.isNotBlank()) {
+            // Recurse?
+            if (isInConversationMode) {
+                 isInConversationMode = false // Don't loop blindly
+            }
+        } else {
+             isInConversationMode = false
+        }
+    }
+    
+    /**
      * Temi Robot Ready Listener
      */
     override fun onRobotReady(isReady: Boolean) {
         if (isReady) {
-            Log.d("MainActivity", "Robot is ready, NLP listener active")
+            Log.d("MainActivity", "Robot is ready")
+            try {
+                // FORCE KIOSK MODE
+                robot.requestToBeKioskApp()
+                robot.hideTopBar()
+                robot.toggleNavigationBillboard(false)
+            } catch (e: Exception) {
+                Log.e("MainActivity", "Error configuring robot", e)
+            }
         }
-    }
-
-    /**
-     * Temi NLP Listener - Captures voice responses
-     */
-    override fun onNlpCompleted(nlpResult: NlpResult) {
-        Log.d("MainActivity", "NLP Result received: ${nlpResult.action}")
-        // Temi NLP results are handled via askQuestion callback
     }
 
     override fun onDestroy() {
         super.onDestroy()
+        stopVoiceCapture()  // Stop conversation mode
         robot.removeOnRobotReadyListener(this)
         robot.removeNlpListener(this)
+        robot.removeAsrListener(this)
         speechRecognizer.destroy()
     }
 }
