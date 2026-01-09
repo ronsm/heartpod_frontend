@@ -1,6 +1,5 @@
 # Healthub Android App - Quick Start Guide
 
-## For Non-Developers
 
 Everything is containerized! You don't need to install Android Studio, SDKs, or any development tools.
 
