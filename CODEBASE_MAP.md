@@ -1,4 +1,4 @@
-# 🗺️ HealthHub Codebase Map
+# HealthHub Codebase Map
 
 This document explains where the different parts of the system live and what they are responsible for.
 
@@ -7,7 +7,7 @@ This document explains where the different parts of the system live and what the
 ## 1. Android Application (`/app`)
 *The "Face" of the system. Runs on the Temi robot's tablet.*
 
-### 📂 Core Logic (`.../healthub/`)
+### Core Logic (`.../healthub/`)
 | File / Folder | Purpose |
 | :--- | :--- |
 | **`MainActivity.kt`** | **The Orchestrator.** Manages the window lifecycle and registers all Temi listeners (Voice, Navigation). |
@@ -16,7 +16,7 @@ This document explains where the different parts of the system live and what the
 | **`api/`** | **Communications.** Contains Retrofit code to talk to the Raspberry Pi backend. |
 | **`speech/`** | **Microphone.** Logic for the "Always-On" listening behavior and native Android mic access. |
 
-### 📂 User Interface (`.../healthub/ui/`)
+### User Interface (`.../healthub/ui/`)
 | File | Screen Name | Description |
 | :--- | :--- | :--- |
 | `WelcomeScreen.kt` | **Home** | The initial "Tap to Speak" or "Start" screen. |

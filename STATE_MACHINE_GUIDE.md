@@ -1,10 +1,10 @@
-# 🧠 HealthHub State Machine: Logic & Components
+# HealthHub State Machine: Logic & Components
 
 The State Machine is the "Conductor" of the app. It ensures that the robot follows a strict, safe, and logical sequence of events.
 
 ---
 
-## 🏛️ 1. The States (Where we are)
+## 1. The States (Where we are)
 A **State** represents a specific "moment" in the user journey.
 
 | Component Name | Visual Context | Robot Behavior |
@@ -22,7 +22,7 @@ A **State** represents a specific "moment" in the user journey.
 
 ---
 
-## ⚡ 2. The Events (What happened)
+## 2. The Events (What happened)
 An **Event** is a trigger that moves the system from one state to the next.
 
 | Component Name | Source | Meaning |
@@ -36,7 +36,7 @@ An **Event** is a trigger that moves the system from one state to the next.
 
 ---
 
-## 🔄 3. Transition Logic (How it flows)
+## 3. Transition Logic (How it flows)
 This illustrates the "Next Mode" logic based on specific combinations.
 
 ```mermaid
@@ -56,12 +56,12 @@ stateDiagram-v2
 
 ---
 
-## 🔬 In-Depth Visualization
-![State Machine Logic Flow](file:///home/kwalker96/.gemini/antigravity/brain/ffae9911-3d52-4381-8543-f7096c488f66/state_machine_logic_flow_1767893332051.png)
+## In-Depth Visualization
+![State Machine Logic Flow](/home/kwalker96/.gemini/antigravity/brain/ffae9911-3d52-4381-8543-f7096c488f66/state_machine_logic_flow_1767893332051.png)
 
 ---
 
-## 🛠️ Code Implementation
+## Code Implementation
 These components are strictly typed in Kotlin to prevent "Illegal State" errors (e.g., trying to take heart rate on the Home Screen).
 
 *   **Logic File:** `app/src/main/java/org/hwu/care/healthub/core/StateMachine.kt`
