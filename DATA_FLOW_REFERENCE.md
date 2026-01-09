@@ -1,11 +1,11 @@
-# 📟 End-to-End Data Flow: SDK & API Reference
+# End-to-End Data Flow: SDK & API Reference
 
 This document provides a technical map of every function call and network request that happens during a HealthHub session.
 
 ---
 
-## 🔬 In-Depth Data Flow Visualization
-![In-Depth System Sequence](file:///home/kwalker96/.gemini/antigravity/brain/ffae9911-3d52-4381-8543-f7096c488f66/in_depth_system_sequence_diagram_1767892847819.png)
+## In-Depth Data Flow Visualization
+![In-Depth System Sequence](/home/kwalker96/.gemini/antigravity/brain/ffae9911-3d52-4381-8543-f7096c488f66/in_depth_system_sequence_diagram_1767892847819.png)
 
 ---
 
