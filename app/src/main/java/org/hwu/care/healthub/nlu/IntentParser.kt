@@ -10,10 +10,15 @@ class IntentParser {
     
     companion object {
         // Pattern lists for different intents
+        private val startPatterns = listOf(
+            "start", "begin", "launch", "open", "hello", "hi", "health hub", 
+            "start screening", "screening", "let's start"
+        )
+
         private val confirmPatterns = listOf(
             "yes", "yeah", "yep", "yup", "sure", "okay", "ok", "alright",
             "done", "finished", "ready", "go ahead", "proceed", "continue",
-            "correct", "right", "affirmative", "absolutely"
+            "correct", "right", "affirmative", "absolutely", "i am"
         )
         
         private val cancelPatterns = listOf(
@@ -44,7 +49,10 @@ class IntentParser {
      * @return Parsed Intent
      */
     fun parse(text: String): Intent {
-        val normalized = text.lowercase().trim()
+        // Normalize: lowercase, remove punctuation, trim
+        val normalized = text.lowercase()
+            .replace(Regex("[^a-z0-9 ]"), "")
+            .trim()
         
         // Check for empty input
         if (normalized.isBlank()) {
@@ -53,6 +61,7 @@ class IntentParser {
         
         // Match against patterns
         return when {
+            matchesAny(normalized, startPatterns) -> Intent.Start
             matchesAny(normalized, confirmPatterns) -> Intent.Confirm
             matchesAny(normalized, cancelPatterns) -> Intent.Cancel
             matchesAny(normalized, retryPatterns) -> Intent.Retry
@@ -67,9 +76,19 @@ class IntentParser {
      */
     private fun matchesAny(text: String, patterns: List<String>): Boolean {
         return patterns.any { pattern ->
-            // Exact match or contains as whole word
-            text == pattern || text.contains(" $pattern ") || 
-            text.startsWith("$pattern ") || text.endsWith(" $pattern")
+            // 1. Exact match
+            if (text == pattern) return@any true
+            
+            // 2. Starts with (e.g. "start screening please")
+            if (text.startsWith("$pattern ")) return@any true
+            
+            // 3. Ends with (e.g. "please start screening")
+            if (text.endsWith(" $pattern")) return@any true
+            
+            // 4. Contains whole phrase
+            if (text.contains(" $pattern ")) return@any true
+            
+            false
         }
     }
     
@@ -77,8 +96,11 @@ class IntentParser {
      * Parse questionnaire answer (more specific than general intent)
      */
     fun parseAnswer(text: String): Answer {
-        val normalized = text.lowercase().trim()
-        
+        // Normalize: lowercase, remove punctuation, trim
+        val normalized = text.lowercase()
+            .replace(Regex("[^a-z0-9 ]"), "")
+            .trim()
+            
         return when {
             // Yes answers
             normalized in listOf("yes", "yeah", "yep", "yup", "sure", "okay", "ok") -> 
@@ -107,6 +129,7 @@ class IntentParser {
  * Intent types that map to FSM events
  */
 sealed class Intent {
+    object Start : Intent()
     object Confirm : Intent()
     object Cancel : Intent()
     object Retry : Intent()
