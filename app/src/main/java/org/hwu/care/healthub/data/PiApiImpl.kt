@@ -42,9 +42,40 @@ class PiApiImpl : PiApi {
                 "oximeter", "pulse_oximeter", "pulseoximeter" -> "Oximeter"
                 "bp", "blood_pressure", "omron" -> "Omron"
                 "hr", "heart_rate", "polar" -> "Polar"
+                "thermometer", "thermometer_station", "beurer" -> "Thermometer"
                 else -> deviceId.capitalize()
             }
 
+            // Thermometer Handling
+            if (itemBaseName == "Thermometer") {
+                val tempItem = service.getItem("${itemBaseName}_Temperature", authToken)
+                val lastUseItem = try { service.getItem("${itemBaseName}_LastUse", authToken) } catch(e:Exception) { null }
+                
+                // Freshness check
+                if (lastUseItem != null && lastUseItem.state != "NULL") {
+                     try {
+                        val sdf = java.text.SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", java.util.Locale.US)
+                        sdf.timeZone = java.util.TimeZone.getTimeZone("UTC")
+                        val lastUseTime = sdf.parse(lastUseItem.state.replace("Z", ""))
+                        val now = java.util.Date()
+                        val ageSeconds = (now.time - lastUseTime.time) / 1000
+                        
+                        // 60s for temperature is generous but safe
+                        if (ageSeconds > 60) {
+                            Log.w("PiApiImpl", "Temp Data is stale (${ageSeconds}s old), returning null")
+                            return null
+                        }
+                    } catch (e: Exception) {
+                        Log.e("PiApiImpl", "Failed to parse LastUse timestamp", e)
+                    }
+                }
+                
+                return if (tempItem.state != "NULL") {
+                    Reading(deviceId, "${tempItem.state}°C", "°C", System.currentTimeMillis())
+                } else null
+            }
+
+            // Default Oximeter/BP Handling (Existing Logic)
             // Fetch SpO2 and Pulse from OpenHAB
             val spo2Item = service.getItem("${itemBaseName}_SpO2", authToken)
             val pulseItem = try {
@@ -53,7 +84,7 @@ class PiApiImpl : PiApi {
                 null
             }
             
-            // Check if data is fresh (updated in last 30 seconds)
+             // Check if data is fresh (updated in last 30 seconds)
             val lastUseItem = try {
                 service.getItem("${itemBaseName}_LastUse", authToken)
             } catch (e: Exception) {
@@ -78,12 +109,10 @@ class PiApiImpl : PiApi {
                     Log.e("PiApiImpl", "Failed to parse LastUse timestamp: ${lastUseItem.state}", e)
                 }
             }
-
-            // Format reading with both values
+            
             val readingText = buildString {
                 append("SpO2: ${spo2Item.state}%")
                 if (pulseItem != null) {
-                    // Extract numeric value from pulse (may have unit like "65 Hz")
                     val pulseValue = pulseItem.state.split(" ").firstOrNull() ?: pulseItem.state
                     append(", Pulse: $pulseValue bpm")
                 }
@@ -105,5 +134,15 @@ class PiApiImpl : PiApi {
     override suspend fun setFocus(deviceId: String) {
         // OpenHAB doesn't need explicit focus - BLE service auto-scans
         // This is a no-op for now
+    }
+    
+    override suspend fun getItemState(itemName: String): String {
+        return try {
+            val item = service.getItem(itemName, authToken)
+            item.state
+        } catch (e: Exception) {
+            Log.e("PiApiImpl", "Failed to get item state for $itemName", e)
+            "NULL"
+        }
     }
 }
