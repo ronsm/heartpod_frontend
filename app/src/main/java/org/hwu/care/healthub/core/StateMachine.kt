@@ -98,6 +98,8 @@ class StateMachine(
                 if (event is Event.DeviceArrived) {
                     temi.showInstructions(currentState.deviceId)
                     _state.value = State.ShowInstructions(currentState.deviceId)
+                } else if (event is Event.Abort) {
+                    _state.value = State.Idle
                 }
             }
             is State.ShowInstructions -> {
@@ -105,12 +107,16 @@ class StateMachine(
                     // Tell Pi to focus/scan
                     piApi.setFocus(currentState.deviceId)
                     _state.value = State.AwaitUse(currentState.deviceId)
+                } else if (event is Event.Abort) {
+                    _state.value = State.Idle
                 }
             }
             is State.AwaitUse -> {
                 if (event is Event.ReadingReady) {
                     _state.value = State.ReadingCapture(currentState.deviceId)
                     captureReading(currentState.deviceId)
+                } else if (event is Event.Abort) {
+                    _state.value = State.Idle
                 }
             }
             is State.ShowReading -> {
@@ -120,6 +126,8 @@ class StateMachine(
                     _state.value = State.ShowThermometerInstructions
                 } else if (event is Event.Retry) {
                     // Retry logic
+                } else if (event is Event.Abort) {
+                    _state.value = State.Idle
                 }
             }
             is State.NavigateToBP -> {
@@ -152,6 +160,8 @@ class StateMachine(
                     // User clicked "Ready" - use same pattern as oximeter
                     piApi.setFocus("thermometer")
                     _state.value = State.AwaitUse("thermometer")
+                } else if (event is Event.Abort) {
+                    _state.value = State.Idle
                 }
             }
             is State.ShowThermometerResults -> {
@@ -159,6 +169,8 @@ class StateMachine(
                     // After Thermometer, go DIRECTLY to Questionnaire (Skipping BP)
                     temi.speak("Perfect. Now I have a few questions for you.")
                     _state.value = State.Questionnaire
+                } else if (event is Event.Abort) {
+                    _state.value = State.Idle
                 }
             }
             is State.Questionnaire -> {
