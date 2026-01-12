@@ -14,6 +14,19 @@ sealed class State {
     data class AwaitUse(val deviceId: String) : State()
     data class ReadingCapture(val deviceId: String) : State()
     data class ShowReading(val reading: Reading) : State()
+    
+    // BP Monitor specific states
+    object NavigateToBP : State()
+    object ShowBPInstructions : State()
+    object AwaitBPUse : State()
+    object BPReadingCapture : State()
+    data class ShowBPResults(val systolic: Float, val diastolic: Float) : State()
+    // Thermometer specific states
+    object NavigateToThermometer : State()
+    object ShowThermometerInstructions : State()
+    object AwaitThermometerUse : State()
+    data class ShowThermometerResults(val temperature: Float) : State()
+    
     object Questionnaire : State()
     
     // Questionnaire states
@@ -37,6 +50,13 @@ sealed class Event {
     object Timeout : Event()
     object Retry : Event()
     object Abort : Event()
+    
+    // BP Monitor events
+    data class BPDataReceived(val systolic: Float, val diastolic: Float) : Event()
+    object BPTimeout : Event()
+
+    // Thermometer events
+    data class ThermometerDataReceived(val temperature: Float) : Event()
     
     // Questionnaire events
     data class PersonalDetailsProvided(val firstName: String, val lastName: String, val dob: String) : Event()
@@ -95,10 +115,95 @@ class StateMachine(
             }
             is State.ShowReading -> {
                 if (event is Event.UserConfirm) {
-                    // Logic for next device or finish
-                    _state.value = State.ConfirmSession
+                    // After oximeter, go directly to Thermometer instructions (skip navigation)
+                    temi.speak("Great! Now let's check your temperature.")
+                    _state.value = State.ShowThermometerInstructions
                 } else if (event is Event.Retry) {
                     // Retry logic
+                }
+            }
+            is State.NavigateToBP -> {
+                if (event is Event.DeviceArrived) {
+                    _state.value = State.ShowBPInstructions
+                }
+            }
+            is State.ShowBPInstructions -> {
+                if (event is Event.UserConfirm) {
+                    _state.value = State.AwaitBPUse
+                }
+            }
+            is State.AwaitBPUse -> {
+                if (event is Event.BPDataReceived) {
+                    val bpEvent = event as Event.BPDataReceived
+                    _state.value = State.ShowBPResults(bpEvent.systolic, bpEvent.diastolic)
+                } else if (event is Event.BPTimeout) {
+                    _state.value = State.ErrorRecover("No BP data received. Please try again.")
+                }
+            }
+            is State.ShowBPResults -> {
+                if (event is Event.UserConfirm) {
+                    // After BP, go to Questionnaire
+                    temi.speak("Perfect. Now I have a few questions for you.")
+                    _state.value = State.Questionnaire
+                }
+            }
+            is State.ShowThermometerInstructions -> {
+                if (event is Event.UserConfirm) {
+                    // User clicked "Ready" - use same pattern as oximeter
+                    piApi.setFocus("thermometer")
+                    _state.value = State.AwaitUse("thermometer")
+                }
+            }
+            is State.ShowThermometerResults -> {
+                if (event is Event.UserConfirm) {
+                    // After Thermometer, go DIRECTLY to Questionnaire (Skipping BP)
+                    temi.speak("Perfect. Now I have a few questions for you.")
+                    _state.value = State.Questionnaire
+                }
+            }
+            is State.Questionnaire -> {
+                // Auto-transition to first question
+                _state.value = State.AskPersonalDetails
+            }
+            is State.AskPersonalDetails -> {
+                if (event is Event.PersonalDetailsProvided) {
+                    _state.value = State.AskSmokingStatus
+                } else if (event is Event.Abort) {
+                    _state.value = State.Idle
+                }
+            }
+            is State.AskSmokingStatus -> {
+                if (event is Event.SmokingAnswered) {
+                    _state.value = State.AskAlcoholConsumption
+                } else if (event is Event.Abort) {
+                    _state.value = State.Idle
+                }
+            }
+            is State.AskAlcoholConsumption -> {
+                if (event is Event.AlcoholAnswered) {
+                    _state.value = State.AskExerciseFrequency
+                } else if (event is Event.Abort) {
+                    _state.value = State.Idle
+                }
+            }
+            is State.AskExerciseFrequency -> {
+                if (event is Event.ExerciseAnswered) {
+                    _state.value = State.ReviewQuestionnaire
+                } else if (event is Event.Abort) {
+                    _state.value = State.Idle
+                }
+            }
+            is State.AskHeightWeight -> {
+                if (event is Event.HeightWeightProvided) {
+                    _state.value = State.ReviewQuestionnaire
+                }
+            }
+            is State.ReviewQuestionnaire -> {
+                if (event is Event.QuestionnaireComplete) {
+                    temi.speak("Thank you! Your health screening is complete.")
+                    _state.value = State.Idle
+                } else if (event is Event.Abort) {
+                    _state.value = State.Idle
                 }
             }
             // ... handle other states
@@ -117,7 +222,15 @@ class StateMachine(
             if (reading != null) {
                 sessionManager.addReading(reading)
                 temi.showReading(reading)
-                _state.value = State.ShowReading(reading)
+                
+                // Handle thermometer separately
+                if (deviceId.lowercase().contains("thermometer")) {
+                    // Extract temperature value from reading
+                    val tempValue = reading.value.replace("°C", "").trim().toFloatOrNull() ?: 0f
+                    _state.value = State.ShowThermometerResults(tempValue)
+                } else {
+                    _state.value = State.ShowReading(reading)
+                }
             } else {
                 _state.value = State.ErrorRecover("Could not fetch reading")
                 temi.speak("I couldn't get the reading. Please try again.")
