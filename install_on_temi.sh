@@ -12,23 +12,23 @@ elif [ -f "$HOME/Android/Sdk/platform-tools/adb" ]; then
 elif [ -f "/usr/lib/android-sdk/platform-tools/adb" ]; then
     ADB="/usr/lib/android-sdk/platform-tools/adb"
 else
-    echo "❌ Error: 'adb' command not found."
+    echo "Error: 'adb' command not found."
     echo "Please install it with: sudo apt install adb"
     echo "OR add Android SDK platform-tools to your PATH."
     exit 1
 fi
 
-echo "🚀 Connecting to Temi at $TEMI_IP..."
+echo "Connecting to Temi at $TEMI_IP..."
 $ADB connect $TEMI_IP:5555
 
-echo "🗑️ Uninstalling old version (if any)..."
+echo "Uninstalling old version (if any)..."
 $ADB uninstall org.hwu.care.healthub
 
-echo "📦 Installing Healthub App..."
+echo "Installing Healthub App..."
 $ADB install -r $APK_PATH
 
-echo "📱 Launching App..."
+echo "Launching App..."
 $ADB shell am start -n org.hwu.care.healthub/.MainActivity
 
-echo "✅ Done! The app should be open now."
-echo "ℹ️ Note: On Temi, if it closes, find it in 'Apps' list (top-right menu)."
+echo "Done! The app should be open now."
+echo "Note: On Temi, if it closes, find it in 'Apps' list (top-right menu)."
