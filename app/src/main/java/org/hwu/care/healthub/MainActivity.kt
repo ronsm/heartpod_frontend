@@ -19,7 +19,9 @@ import org.hwu.care.healthub.ui.screens.*
 class MainActivity : ComponentActivity(), OnRobotReadyListener {
 
     // -------------------------------------------------------------------------
-    // Configuration — change BACKEND_URL to point at your backend
+    // Configuration — set BACKEND_URL to the machine running langtest_langgraph.py
+    //   Emulator:   http://10.0.2.2:8000   (routes to host loopback)
+    //   Real Temi:  http://<host-machine-LAN-IP>:8000  (e.g. 192.168.2.x)
     // -------------------------------------------------------------------------
     companion object {
         const val BACKEND_URL = "http://10.0.2.2:8000"
