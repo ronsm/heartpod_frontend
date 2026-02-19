@@ -62,6 +62,9 @@ dependencies {
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.7.3")
     testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.7.3")
 
+    // HTTP
+    implementation("com.squareup.okhttp3:okhttp:4.12.0")
+
     // Temi SDK
     implementation("com.github.robotemi:sdk:v1.135.1")
 }
