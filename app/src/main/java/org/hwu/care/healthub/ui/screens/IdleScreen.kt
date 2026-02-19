@@ -11,22 +11,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 
 @Composable
-fun WelcomeScreen(
-    onStart: () -> Unit,
-    onExit: (() -> Unit)? = null
-) {
+fun IdleScreen(onStart: () -> Unit) {
     Box(modifier = Modifier.fillMaxSize()) {
-        if (onExit != null) {
-            Button(
-                onClick = onExit,
-                modifier = Modifier
-                    .align(Alignment.TopEnd)
-                    .padding(16.dp)
-            ) {
-                Text("Exit", fontSize = 18.sp)
-            }
-        }
-
         Column(
             modifier = Modifier.fillMaxSize(),
             verticalArrangement = Arrangement.Center,
@@ -46,6 +32,6 @@ fun WelcomeScreen(
 
 @Preview(widthDp = 1280, heightDp = 800, showBackground = true)
 @Composable
-private fun WelcomeScreenPreview() {
-    WelcomeScreen(onStart = {}, onExit = {})
+private fun IdleScreenPreview() {
+    IdleScreen(onStart = {})
 }
