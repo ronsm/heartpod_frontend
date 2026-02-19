@@ -1,15 +1,46 @@
+# Android
 *.iml
-.gradle
-/local.properties
-/.idea/caches
-/.idea/libraries
-/.idea/modules.xml
-/.idea/workspace.xml
-/.idea/navEditor.xml
-/.idea/assetWizardSettings.xml
+.gradle/
+local.properties
+
+# Build outputs
+/build/
+/app/build/
+/app/build_*/
+
+# IDE
+.idea/
+.vscode/
+
+# Large binary assets
+*.bin
+*.elf
+*.img
+*.dtb
+*.dtbo
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+.env
+venv/
+.venv/
+
+# Secrets
+*.env
+.env*
+!.env.example
+
+# Archives & binaries
+*.tar.gz
+*.zip
+ninja
+
+# macOS
 .DS_Store
-/build
+
+# Android Studio captures
 /captures
 .externalNativeBuild
 .cxx
-local.properties
