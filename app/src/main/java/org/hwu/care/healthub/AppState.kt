@@ -12,8 +12,8 @@ data class AppState(
 )
 
 /**
- * Page IDs matching the state machine diagram.
- * IDs correspond directly to the state machine nodes — adjust if the diagram changes.
+ * Page IDs matching the backend PAGE_CONFIG in config.py.
+ * The backend sends these as zero-padded strings ("01", "02"...) — parse to Int on receipt.
  */
 object PageId {
     const val IDLE             = 1
@@ -25,11 +25,12 @@ object PageId {
     const val OXIMETER_INTRO   = 7
     const val OXIMETER_READING = 8
     const val OXIMETER_DONE    = 9
-    const val BP_DONE          = 10
+    const val BP_INTRO         = 10
     const val BP_READING       = 11
-    const val BP_INTRO         = 12
+    const val BP_DONE          = 12
     const val SCALE_INTRO      = 13
     const val SCALE_READING    = 14
-    const val RECAP            = 15
-    const val SORRY            = 16
+    const val SCALE_DONE       = 15
+    const val RECAP            = 16
+    const val SORRY            = 17
 }

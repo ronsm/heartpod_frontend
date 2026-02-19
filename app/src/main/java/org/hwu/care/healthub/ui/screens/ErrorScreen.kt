@@ -8,6 +8,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 
@@ -49,4 +50,14 @@ fun ErrorScreen(
             }
         }
     }
+}
+
+@Preview(widthDp = 1280, heightDp = 800, showBackground = true)
+@Composable
+private fun ErrorScreenPreview() {
+    ErrorScreen(
+        message = "Sorry, we weren't able to get a reading.",
+        onRetry = {},
+        onExit = {}
+    )
 }

@@ -6,6 +6,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 
@@ -26,4 +27,10 @@ fun DeviceInstructionScreen(deviceId: String, onReady: () -> Unit) {
             Text("I'm Ready", fontSize = 24.sp)
         }
     }
+}
+
+@Preview(widthDp = 1280, heightDp = 800, showBackground = true)
+@Composable
+private fun DeviceInstructionScreenPreview() {
+    DeviceInstructionScreen(deviceId = "oximeter", onReady = {})
 }
