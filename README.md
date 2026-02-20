@@ -41,7 +41,6 @@ app/src/main/java/org/hwu/care/healthub/
 ├── core/
 │   └── TemiControllerImpl.kt
 └── ui/screens/              # One Composable per screen
-config.py                    # Page config used by the backend
 mock_backend.py              # Standalone mock backend for development
 ```
 
