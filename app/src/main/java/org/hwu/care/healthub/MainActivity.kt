@@ -129,6 +129,7 @@ fun HealthubApp(state: AppState, onUserAction: (String, Map<String, String>) -> 
 
             PageId.RECAP ->
                 ConfirmSessionScreen(
+                    data = state.data,
                     onContinue = { onUserAction("continue", emptyMap()) },
                     onFinish = { onUserAction("finish", emptyMap()) }
                 )
