@@ -18,6 +18,10 @@ local.properties
 *.img
 *.dtb
 *.dtbo
+backup_data/
+
+# Documents / PDFs (belong in external storage, not git)
+*.pdf
 
 # Python
 __pycache__/
@@ -35,7 +39,9 @@ venv/
 # Archives & binaries
 *.tar.gz
 *.zip
+*.gz
 ninja
+ninja-linux.zip
 
 # macOS
 .DS_Store
