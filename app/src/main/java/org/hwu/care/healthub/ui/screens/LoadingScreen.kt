@@ -23,7 +23,7 @@ fun LoadingScreen(message: String = "Please wait...") {
                 strokeWidth = 6.dp
             )
             Spacer(modifier = Modifier.height(24.dp))
-            Text(message, fontSize = 24.sp)
+            Text(message, fontSize = 32.sp)
         }
     }
 }

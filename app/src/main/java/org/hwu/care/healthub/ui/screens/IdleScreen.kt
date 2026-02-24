@@ -18,13 +18,13 @@ fun IdleScreen(onStart: () -> Unit) {
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Text("Welcome to HealthHub", fontSize = 32.sp)
+            Text("Welcome to HealthHub", fontSize = 48.sp)
             Spacer(modifier = Modifier.height(32.dp))
             Button(
                 onClick = onStart,
                 modifier = Modifier.size(width = 300.dp, height = 80.dp)
             ) {
-                Text("Start Screening", fontSize = 28.sp)
+                Text("Start Screening", fontSize = 32.sp)
             }
         }
     }

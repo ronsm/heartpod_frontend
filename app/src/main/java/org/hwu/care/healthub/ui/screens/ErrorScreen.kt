@@ -38,15 +38,15 @@ fun ErrorScreen(
         ) {
             Text("⚠️", fontSize = 64.sp)
             Spacer(modifier = Modifier.height(16.dp))
-            Text("Error", fontSize = 32.sp, color = Color.Red)
+            Text("Error", fontSize = 48.sp, color = Color.Red)
             Spacer(modifier = Modifier.height(16.dp))
-            Text(message, fontSize = 20.sp)
+            Text(message, fontSize = 32.sp)
             Spacer(modifier = Modifier.height(32.dp))
             Button(
                 onClick = onRetry,
                 modifier = Modifier.size(width = 200.dp, height = 60.dp)
             ) {
-                Text("Try Again", fontSize = 24.sp)
+                Text("Try Again", fontSize = 32.sp)
             }
         }
     }

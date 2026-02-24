@@ -30,16 +30,16 @@ fun ReadingDisplayScreen(
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        Text("Reading Captured", fontSize = 24.sp)
-        Spacer(modifier = Modifier.height(16.dp))
+        Text("Reading Captured", fontSize = 32.sp)
+        Spacer(modifier = Modifier.height(48.dp))
         Text("$value $unit", fontSize = 48.sp)
         Spacer(modifier = Modifier.height(32.dp))
         Row(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
             Button(onClick = { onAction("retry") }) {
-                Text("Retry", fontSize = 20.sp)
+                Text("Retry", fontSize = 32.sp)
             }
             Button(onClick = { onAction("confirm") }) {
-                Text("Confirm", fontSize = 20.sp)
+                Text("Confirm", fontSize = 32.sp)
             }
         }
     }

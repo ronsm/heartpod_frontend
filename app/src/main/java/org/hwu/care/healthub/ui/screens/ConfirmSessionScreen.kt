@@ -38,7 +38,7 @@ fun ConfirmSessionScreen(
             .padding(horizontal = 48.dp, vertical = 32.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        Text("Session Summary", fontSize = 32.sp, fontWeight = FontWeight.Bold)
+        Text("Session Summary", fontSize = 48.sp, fontWeight = FontWeight.Bold)
         Spacer(modifier = Modifier.height(24.dp))
 
         // Two-column summary: questionnaire (left) | measurements (right)
@@ -50,7 +50,7 @@ fun ConfirmSessionScreen(
         ) {
             // Questionnaire answers
             Column(modifier = Modifier.weight(1f)) {
-                Text("Questionnaire", fontSize = 22.sp, fontWeight = FontWeight.SemiBold)
+                Text("Questionnaire", fontSize = 32.sp, fontWeight = FontWeight.SemiBold)
                 Spacer(modifier = Modifier.height(16.dp))
                 SummaryRow(label = "Smoking", value = data["q1"] ?: "\u2014")
                 SummaryRow(label = "Exercise", value = data["q2"] ?: "\u2014")
@@ -59,7 +59,7 @@ fun ConfirmSessionScreen(
 
             // Sensor measurements
             Column(modifier = Modifier.weight(1f)) {
-                Text("Measurements", fontSize = 22.sp, fontWeight = FontWeight.SemiBold)
+                Text("Measurements", fontSize = 32.sp, fontWeight = FontWeight.SemiBold)
                 Spacer(modifier = Modifier.height(16.dp))
                 SummaryRow(label = "HR / SpO2", value = data["oximeter"] ?: "\u2014")
                 SummaryRow(label = "Blood Pressure", value = data["bp"] ?: "\u2014")
@@ -75,14 +75,14 @@ fun ConfirmSessionScreen(
                 modifier = Modifier.size(width = 200.dp, height = 60.dp),
                 colors = ButtonDefaults.buttonColors(containerColor = Color.Gray)
             ) {
-                Text("Finish", fontSize = 24.sp)
+                Text("Finish", fontSize = 32.sp)
             }
             Button(
                 onClick = onContinue,
                 modifier = Modifier.size(width = 200.dp, height = 60.dp),
                 colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF4CAF50))
             ) {
-                Text("Continue", fontSize = 24.sp)
+                Text("Continue", fontSize = 32.sp)
             }
         }
     }
@@ -95,8 +95,8 @@ private fun SummaryRow(label: String, value: String) {
             .fillMaxWidth()
             .padding(vertical = 8.dp)
     ) {
-        Text(label, fontSize = 16.sp, color = Color.Gray)
-        Text(value, fontSize = 20.sp)
+        Text(label, fontSize = 18.sp, color = Color.Gray)
+        Text(value, fontSize = 24.sp)
     }
     HorizontalDivider()
 }

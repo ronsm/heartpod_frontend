@@ -37,7 +37,7 @@ fun WelcomeScreen(
                 .padding(48.dp),
             contentAlignment = Alignment.Center
         ) {
-            Text(message, fontSize = 22.sp, lineHeight = 32.sp)
+            Text(message, fontSize = 32.sp, lineHeight = 32.sp)
         }
 
         // Right: Accept / Reject buttons
@@ -53,7 +53,7 @@ fun WelcomeScreen(
                 onClick = onAccept,
                 modifier = Modifier.fillMaxWidth().height(72.dp)
             ) {
-                Text("Accept", fontSize = 24.sp)
+                Text("Accept", fontSize = 32.sp)
             }
             Spacer(modifier = Modifier.height(24.dp))
             Button(
@@ -61,7 +61,7 @@ fun WelcomeScreen(
                 modifier = Modifier.fillMaxWidth().height(72.dp),
                 colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFB0BEC5))
             ) {
-                Text("Reject", fontSize = 24.sp)
+                Text("Reject", fontSize = 32.sp)
             }
         }
     }

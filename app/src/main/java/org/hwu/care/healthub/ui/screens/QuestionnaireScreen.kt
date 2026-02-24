@@ -32,48 +32,43 @@ fun QuestionnaireScreen(
     val question = data["question"] ?: ""
     val options = parseOptions(data["options"])
 
-    Row(modifier = Modifier.fillMaxSize()) {
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(48.dp)
+            .verticalScroll(rememberScrollState()),
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
 
-        // Left: question text
+        // Top: question text
         Box(
             modifier = Modifier
-                .weight(1f)
-                .fillMaxHeight()
-                .padding(48.dp),
+                .fillMaxWidth()
+                .weight(1f),
             contentAlignment = Alignment.Center
         ) {
-            Text(question, fontSize = 26.sp, lineHeight = 38.sp)
+            Text(question, fontSize = 32.sp, lineHeight = 38.sp)
         }
 
-        // Right: option buttons + Skip
-        Column(
-            modifier = Modifier
-                .width(380.dp)
-                .fillMaxHeight()
-                .padding(48.dp)
-                .verticalScroll(rememberScrollState()),
-            verticalArrangement = Arrangement.Center,
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
-            options.forEach { option ->
-                Button(
-                    onClick = { onAnswer(option) },
-                    modifier = Modifier.fillMaxWidth().height(60.dp)
-                ) {
-                    Text(option, fontSize = 18.sp)
-                }
-                Spacer(modifier = Modifier.height(12.dp))
-            }
-
-            Spacer(modifier = Modifier.height(12.dp))
-
+        // Bottom: option buttons + Skip
+        options.forEach { option ->
             Button(
-                onClick = onSkip,
-                modifier = Modifier.fillMaxWidth().height(60.dp),
-                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFB0BEC5))
+                onClick = { onAnswer(option) },
+                modifier = Modifier.fillMaxWidth().height(60.dp)
             ) {
-                Text("Skip", fontSize = 18.sp)
+                Text(option, fontSize = 28.sp)
             }
+            Spacer(modifier = Modifier.height(12.dp))
+        }
+
+        Spacer(modifier = Modifier.height(12.dp))
+
+        Button(
+            onClick = onSkip,
+            modifier = Modifier.fillMaxWidth().height(60.dp),
+            colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFB0BEC5))
+        ) {
+            Text("Skip", fontSize = 28.sp)
         }
     }
 }

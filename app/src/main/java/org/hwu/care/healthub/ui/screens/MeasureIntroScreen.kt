@@ -33,7 +33,7 @@ fun MeasureIntroScreen(
         ) {
             Text(
                 text = data["message"] ?: "",
-                fontSize = 26.sp,
+                fontSize = 32.sp,
                 lineHeight = 38.sp
             )
             Spacer(modifier = Modifier.height(48.dp))
@@ -41,7 +41,7 @@ fun MeasureIntroScreen(
                 onClick = onContinue,
                 modifier = Modifier.size(width = 260.dp, height = 68.dp)
             ) {
-                Text("Continue", fontSize = 22.sp)
+                Text("Continue", fontSize = 32.sp)
             }
         }
     }

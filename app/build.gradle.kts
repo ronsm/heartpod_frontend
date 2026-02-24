@@ -67,4 +67,7 @@ dependencies {
 
     // Temi SDK
     implementation("com.github.robotemi:sdk:v1.135.1")
+
+    // YouTube player
+    implementation("com.pierfrancescosoffritti.androidyoutubeplayer:core:13.0.0")
 }

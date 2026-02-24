@@ -94,7 +94,24 @@ User button presses in the app will be printed in the terminal as `[app] action=
    const val BACKEND_URL = "http://192.168.2.150:8000"
    ```
 2. Connect the Temi to the same network as your backend machine.
-3. Use `./deploy_to_temi.sh` or `./install_on_temi.sh` to sideload the APK.
+3. On Temi, find the IP address under **Settings > Developer Tools > ADB**.
+4. Install the APK over Wi-Fi:
+   ```bash
+   adb connect <temi-ip>:5555   # accept the debug prompt on the touchscreen
+   adb install -r -t app/build/outputs/apk/debug/app-debug.apk
+   adb disconnect
+   ```
+   The TCP port stays open until closed in **Settings > Developer Tools > ADB**.
+
+To launch the app from the terminal instead of the touchscreen:
+```bash
+adb shell am start -n org.hwu.care.healthub/.MainActivity
+```
+
+To uninstall:
+```bash
+adb uninstall org.hwu.care.healthub   # add -k to keep data
+```
 
 ## Page IDs Reference
 
