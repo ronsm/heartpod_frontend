@@ -18,7 +18,7 @@ fun IdleScreen(onStart: () -> Unit) {
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Text("Welcome to HealthHub", fontSize = 48.sp)
+            Text("Welcome to HeartPod", fontSize = 48.sp)
             Spacer(modifier = Modifier.height(32.dp))
             Button(
                 onClick = onStart,
