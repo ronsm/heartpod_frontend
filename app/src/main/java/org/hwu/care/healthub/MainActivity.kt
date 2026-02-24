@@ -12,25 +12,25 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import com.robotemi.sdk.Robot
 import com.robotemi.sdk.listeners.OnRobotReadyListener
-import org.hwu.care.healthub.comms.HttpPollingClient
+import org.hwu.care.healthub.comms.WebSocketClient
 import org.hwu.care.healthub.core.TemiControllerImpl
 import org.hwu.care.healthub.ui.screens.*
 
 class MainActivity : ComponentActivity(), OnRobotReadyListener {
 
     // -------------------------------------------------------------------------
-    // Configuration — set BACKEND_URL to the machine running langtest_langgraph.py
-    //   Emulator:   http://10.0.2.2:8000   (routes to host loopback)
-    //   Real Temi:  http://<host-machine-LAN-IP>:8000  (e.g. 192.168.2.x)
+    // Configuration — set BACKEND_URL to the machine running main.py
+    //   Emulator:   ws://10.0.2.2:8000   (routes to host loopback)
+    //   Real Temi:  ws://<host-machine-LAN-IP>:8000  (e.g. 192.168.2.x)
     // -------------------------------------------------------------------------
     companion object {
-        const val BACKEND_URL = "http://10.0.2.2:8000"
+        const val BACKEND_URL = "ws://10.0.2.2:8000"
     }
 
     // Null on emulator — all calls are guarded with ?.
     private val robot = Robot.getInstance()
     private val temi = TemiControllerImpl()
-    private val comms = HttpPollingClient()
+    private val comms = WebSocketClient()
 
     private val appState = mutableStateOf(AppState(pageId = PageId.IDLE))
 
