@@ -38,13 +38,21 @@ class WebSocketClient : CommsClient {
             override fun onMessage(ws: WebSocket, text: String) {
                 try {
                     val json = JSONObject(text)
-                    if (json.optString("type") != "state") return
-                    val pageId = json.getInt("page_id")
-                    val data = mutableMapOf<String, String>()
-                    json.optJSONObject("data")?.let { obj ->
-                        obj.keys().forEach { key -> data[key] = obj.get(key).toString() }
+                    when (json.optString("type")) {
+                        "state" -> {
+                            val pageId = json.getInt("page_id")
+                            val data = mutableMapOf<String, String>()
+                            json.optJSONObject("data")?.let { obj ->
+                                obj.keys().forEach { key -> data[key] = obj.get(key).toString() }
+                            }
+                            onStateChanged?.invoke(AppState(pageId, data))
+                        }
+                        "tts" -> {
+                            // TODO: implement Temi TTS handling
+                            Log.d(TAG, "TTS received: ${json.optString("text")}")
+                        }
+                        else -> Log.w(TAG, "Unknown message type: ${json.optString("type")}")
                     }
-                    onStateChanged?.invoke(AppState(pageId, data))
                 } catch (e: Exception) {
                     Log.w(TAG, "Failed to parse message: ${e.message}")
                 }
