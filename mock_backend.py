@@ -68,7 +68,7 @@ PAGES = {
     }},
     7:  {"name": "OXIMETER_INTRO",   "data": {"device": "oximeter"}},
     8:  {"name": "OXIMETER_READING", "data": {"message": "Taking oximeter reading... please stay still."}},
-    9:  {"name": "OXIMETER_DONE",    "data": {"value": "98", "unit": "% SpO2"}},
+    9:  {"name": "OXIMETER_DONE",    "data": {"value": "72 / 98", "unit": "bpm / %SpO2"}},
     10: {"name": "BP_INTRO",         "data": {"device": "blood pressure monitor"}},
     11: {"name": "BP_READING",       "data": {"message": "Measuring now. Please relax and keep still."}},
     12: {"name": "BP_DONE",          "data": {"value": "120 / 80", "unit": "mmHg"}},
