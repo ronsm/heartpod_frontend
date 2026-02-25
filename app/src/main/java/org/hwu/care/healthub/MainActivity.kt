@@ -6,10 +6,18 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Surface
+import androidx.compose.material3.Text
 import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.robotemi.sdk.Robot
 import com.robotemi.sdk.listeners.OnRobotReadyListener
 import org.hwu.care.healthub.comms.WebSocketClient
@@ -79,6 +87,7 @@ class MainActivity : ComponentActivity(), OnRobotReadyListener {
 fun HealthubApp(state: AppState, onUserAction: (String, Map<String, String>) -> Unit) {
     Box(modifier = Modifier.fillMaxSize()) {
         when (state.pageId) {
+            // screens below
             PageId.IDLE ->
                 IdleScreen(
                     onStart = { onUserAction("start", emptyMap()) }
@@ -143,6 +152,19 @@ fun HealthubApp(state: AppState, onUserAction: (String, Map<String, String>) -> 
 
             else ->
                 LoadingScreen(message = "Loading...")
+        }
+
+        // Reset button — visible on every screen except IDLE (where there is nothing to reset)
+        if (state.pageId != PageId.IDLE) {
+            OutlinedButton(
+                onClick = { onUserAction("reset", emptyMap()) },
+                modifier = Modifier
+                    .align(Alignment.BottomStart)
+                    .padding(16.dp),
+                colors = ButtonDefaults.outlinedButtonColors(contentColor = Color(0xFFB00020))
+            ) {
+                Text("Reset", fontSize = 20.sp)
+            }
         }
     }
 }

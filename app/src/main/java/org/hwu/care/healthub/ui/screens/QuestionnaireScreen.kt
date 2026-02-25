@@ -65,7 +65,7 @@ fun QuestionnaireScreen(
 
         Button(
             onClick = onSkip,
-            modifier = Modifier.fillMaxWidth().height(60.dp),
+            modifier = Modifier.fillMaxWidth(.7f).height(60.dp),
             colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFB0BEC5))
         ) {
             Text("Skip", fontSize = 28.sp)
