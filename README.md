@@ -114,7 +114,7 @@ When the backend is in `--tts temi` mode it sends `{"type": "tts", "text": "..."
 
 When the backend is in `--tts local` mode it sends `{"type": "tts_active", "active": true/false}` messages instead, which lock and unlock the buttons in the same way.
 
-On the emulator (no real Temi hardware), `tts_status=stop` is sent immediately since the SDK cannot synthesise speech. A fallback timer in the backend handles unmuting the ASR and unlocking the app in this case.
+On the emulator, `Robot.getInstance()` returns non-null so `robot.speak()` is called normally, but `onTtsStatusChanged` never fires. In this case `tts_status=stop` is never sent; instead the backend's fallback timer fires `tts_active=false` after an estimated playback duration, which unlocks the buttons via the `onTtsActive` handler.
 
 ## WebSocket Protocol
 
