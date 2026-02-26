@@ -26,6 +26,7 @@ import org.json.JSONArray
 @Composable
 fun QuestionnaireScreen(
     data: Map<String, String>,
+    ttsLocked: Boolean = false,
     onAnswer: (String) -> Unit,
     onSkip: () -> Unit
 ) {
@@ -54,6 +55,7 @@ fun QuestionnaireScreen(
         options.forEach { option ->
             Button(
                 onClick = { onAnswer(option) },
+                enabled = !ttsLocked,
                 modifier = Modifier.fillMaxWidth().height(60.dp)
             ) {
                 Text(option, fontSize = 28.sp)
@@ -65,6 +67,7 @@ fun QuestionnaireScreen(
 
         Button(
             onClick = onSkip,
+            enabled = !ttsLocked,
             modifier = Modifier.fillMaxWidth(.7f).height(60.dp),
             colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFB0BEC5))
         ) {

@@ -15,6 +15,7 @@ import androidx.compose.ui.unit.sp
 @Composable
 fun ErrorScreen(
     message: String,
+    ttsLocked: Boolean = false,
     onRetry: () -> Unit,
     onExit: () -> Unit
 ) {
@@ -22,6 +23,7 @@ fun ErrorScreen(
         // Exit button
         Button(
             onClick = onExit,
+            enabled = !ttsLocked,
             modifier = Modifier
                 .align(Alignment.TopEnd)
                 .padding(16.dp),
@@ -44,6 +46,7 @@ fun ErrorScreen(
             Spacer(modifier = Modifier.height(32.dp))
             Button(
                 onClick = onRetry,
+                enabled = !ttsLocked,
                 modifier = Modifier.size(width = 200.dp, height = 60.dp)
             ) {
                 Text("Try Again", fontSize = 32.sp)

@@ -22,6 +22,7 @@ import androidx.compose.ui.unit.sp
 @Composable
 fun WelcomeScreen(
     data: Map<String, String>,
+    ttsLocked: Boolean = false,
     onAccept: () -> Unit,
     onReject: () -> Unit
 ) {
@@ -51,6 +52,7 @@ fun WelcomeScreen(
         ) {
             Button(
                 onClick = onAccept,
+                enabled = !ttsLocked,
                 modifier = Modifier.fillMaxWidth().height(72.dp)
             ) {
                 Text("Accept", fontSize = 32.sp)
@@ -58,6 +60,7 @@ fun WelcomeScreen(
             Spacer(modifier = Modifier.height(24.dp))
             Button(
                 onClick = onReject,
+                enabled = !ttsLocked,
                 modifier = Modifier.fillMaxWidth().height(72.dp),
                 colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFB0BEC5))
             ) {

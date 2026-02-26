@@ -18,6 +18,12 @@ class WebSocketClient : CommsClient {
     private var onStateChanged: ((AppState) -> Unit)? = null
     private var stopped = false
 
+    /** Invoked on the IO thread when the backend sends a TTS utterance for Temi to speak. */
+    var onTtsText: ((String) -> Unit)? = null
+
+    /** Invoked on the IO thread when local TTS playback starts (true) or finishes (false). */
+    var onTtsActive: ((Boolean) -> Unit)? = null
+
     override fun start(baseUrl: String, onStateChanged: (AppState) -> Unit) {
         wsUrl = baseUrl.trimEnd('/')
         this.onStateChanged = onStateChanged
@@ -48,8 +54,11 @@ class WebSocketClient : CommsClient {
                             onStateChanged?.invoke(AppState(pageId, data))
                         }
                         "tts" -> {
-                            // TODO: implement Temi TTS handling
-                            Log.d(TAG, "TTS received: ${json.optString("text")}")
+                            val text = json.optString("text")
+                            if (text.isNotBlank()) onTtsText?.invoke(text)
+                        }
+                        "tts_active" -> {
+                            onTtsActive?.invoke(json.optBoolean("active"))
                         }
                         else -> Log.w(TAG, "Unknown message type: ${json.optString("type")}")
                     }
@@ -76,6 +85,14 @@ class WebSocketClient : CommsClient {
             delay(RECONNECT_DELAY_MS)
             if (!stopped) connect()
         }
+    }
+
+    fun sendTtsStatus(status: String) {
+        val msg = JSONObject().apply {
+            put("type", "tts_status")
+            put("status", status)
+        }.toString()
+        webSocket?.send(msg)
     }
 
     override fun sendAction(action: String, data: Map<String, String>) {

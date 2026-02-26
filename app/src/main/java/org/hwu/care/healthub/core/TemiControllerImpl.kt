@@ -3,13 +3,38 @@ package org.hwu.care.healthub.core
 import com.robotemi.sdk.Robot
 import com.robotemi.sdk.TtsRequest
 
-class TemiControllerImpl : TemiController {
+class TemiControllerImpl : TemiController, Robot.TtsListener {
 
     // Null on emulator — all calls are guarded with ?.
     private val robot = Robot.getInstance()
 
-    override fun speak(text: String) {
-        robot?.speak(TtsRequest.create(text, isShowOnConversationLayer = false))
+    // Callback to invoke when the current TTS utterance finishes.
+    private var pendingDone: (() -> Unit)? = null
+
+    override fun onStart() {
+        robot?.addTtsListener(this)
+    }
+
+    override fun onStop() {
+        robot?.removeTtsListener(this)
+    }
+
+    override fun speak(text: String, onDone: () -> Unit) {
+        if (robot == null) {
+            // On emulator there is no robot; treat as immediately done.
+            onDone()
+            return
+        }
+        pendingDone = onDone
+        robot.speak(TtsRequest.create(text, isShowOnConversationLayer = false))
+    }
+
+    override fun onTtsStatusChanged(ttsRequest: TtsRequest) {
+        val status = ttsRequest.status
+        if (status == TtsRequest.Status.COMPLETED || status == TtsRequest.Status.ERROR) {
+            pendingDone?.invoke()
+            pendingDone = null
+        }
     }
 
     override fun navigateTo(location: String) {

@@ -1,20 +1,21 @@
 # HeartPod Frontend
 
-Android Compose UI for the HeartPod self-screening health check system, designed to run on a [Temi robot](https://www.robotemi.com/). The app displays screens driven by a remote Python/FastAPI backend, polling for page state and sending user actions back.
+Android Compose UI for the HeartPod self-screening health check system, designed to run on a [Temi robot](https://www.robotemi.com/). The app displays screens driven by a remote Python backend over WebSocket, and sends user button actions back to the backend.
 
 ## Architecture
 
 ```
-Backend (Python/FastAPI)  <──HTTP polling──>  Android App (Jetpack Compose)
+Backend (Python/WebSocket)  ←──WebSocket──→  Android App (Jetpack Compose)
          │                                              │
     page_id + data                              renders screen
+    tts utterances                              speaks via Temi
     receives actions                            sends user actions
 ```
 
 - The backend is the source of truth for which screen to show
-- The app polls `GET /state` and renders the appropriate Compose screen
-- User interactions (button presses) are posted to `POST /action`
-- Temi SDK is used for kiosk mode, TTS, and navigation on real hardware — gracefully degraded on emulator
+- The app maintains a persistent WebSocket connection and re-renders whenever the backend pushes a new `state` message
+- User button presses are sent back as `action` messages over the same connection
+- The Temi SDK is used for kiosk mode and TTS on real hardware — gracefully degraded on emulator
 
 ## Screens
 
@@ -34,14 +35,15 @@ Backend (Python/FastAPI)  <──HTTP polling──>  Android App (Jetpack Compo
 
 ```
 app/src/main/java/org/hwu/care/healthub/
-├── MainActivity.kt          # Entry point, HTTP client setup, screen routing
+├── MainActivity.kt          # Entry point, WebSocket setup, screen routing, TTS wiring
 ├── AppState.kt              # Shared UI state (pageId + data map)
 ├── comms/
-│   └── HttpPollingClient.kt # Polls backend, sends actions
+│   ├── CommsClient.kt       # Transport interface
+│   └── WebSocketClient.kt   # WebSocket connection: state push, TTS, action send
 ├── core/
-│   └── TemiControllerImpl.kt
+│   ├── TemiController.kt    # TTS/navigation interface
+│   └── TemiControllerImpl.kt# Temi SDK implementation (Robot.TtsListener)
 └── ui/screens/              # One Composable per screen
-mock_backend.py              # Standalone mock backend for development
 ```
 
 ## Running in the Emulator
@@ -49,51 +51,39 @@ mock_backend.py              # Standalone mock backend for development
 ### Prerequisites
 
 - Android Studio (Hedgehog or newer)
-- Python 3 (for the mock backend)
 - An AVD configured as a tablet or landscape device (the Temi screen is 1280×800px)
+- The Python backend running on the same machine
 
-### 1. Start the mock backend
+### 1. Start the backend
 
 ```bash
-python3 mock_backend.py
+cd heartpod_backend
+python main.py --dummy --no-printer --no-listen
 ```
 
-The server starts on `http://0.0.0.0:8000`. Leave this terminal open — you will type page IDs here to drive the app.
+The WebSocket server starts on port 8000. The `--dummy` flag uses simulated sensor data so no BLE hardware is needed.
 
 ### 2. Check the backend URL
 
 In `MainActivity.kt`, confirm the backend URL is set for the emulator:
 
 ```kotlin
-const val BACKEND_URL = "http://10.0.2.2:8000"
+const val BACKEND_URL = "ws://10.0.2.2:8000"
 ```
 
 `10.0.2.2` is the Android emulator's alias for the host machine's loopback interface.
 
 ### 3. Build and run
 
-Open the project in Android Studio and press **Run** (or `Shift+F10`). Select your AVD when prompted.
-
-### 4. Drive the app from the terminal
-
-With the app running, switch screens by typing a page number in the mock backend terminal:
-
-```
-> 1    # Idle screen
-> 2    # Welcome screen
-> 3    # Smoking question
-> 7    # Oximeter instruction
-```
-
-User button presses in the app will be printed in the terminal as `[app] action='...'`.
+Open the project in Android Studio and press **Run** (`Shift+F10`). Select your AVD when prompted.
 
 ## Running on a Real Temi Robot
 
 1. Set the backend URL in `MainActivity.kt` to your backend machine's LAN IP:
    ```kotlin
-   const val BACKEND_URL = "http://192.168.2.150:8000"
+   const val BACKEND_URL = "ws://192.168.2.150:8000"
    ```
-2. Connect the Temi to the same network as your backend machine.
+2. Connect Temi to the same network as your backend machine.
 3. On Temi, find the IP address under **Settings > Developer Tools > ADB**.
 4. Install the APK over Wi-Fi:
    ```bash
@@ -112,6 +102,29 @@ To uninstall:
 ```bash
 adb uninstall org.hwu.care.healthub   # add -k to keep data
 ```
+
+## TTS and Button Locking
+
+When the backend is in `--tts temi` mode it sends `{"type": "tts", "text": "..."}` messages over the WebSocket. The app:
+
+1. Locks all input buttons on the current screen (greyed out, non-interactive)
+2. Sends `{"type": "tts_status", "status": "start"}` to the backend
+3. Calls `robot.speak()` via the Temi SDK
+4. On completion (`Robot.TtsListener.onTtsStatusChanged` → `COMPLETED`), unlocks the buttons and sends `{"type": "tts_status", "status": "stop"}`
+
+When the backend is in `--tts local` mode it sends `{"type": "tts_active", "active": true/false}` messages instead, which lock and unlock the buttons in the same way.
+
+On the emulator, `Robot.getInstance()` returns non-null so `robot.speak()` is called normally, but `onTtsStatusChanged` never fires. In this case `tts_status=stop` is never sent; instead the backend's fallback timer fires `tts_active=false` after an estimated playback duration, which unlocks the buttons via the `onTtsActive` handler.
+
+## WebSocket Protocol
+
+| Direction | Message | Description |
+|-----------|---------|-------------|
+| Backend → App | `{"type": "state", "page_id": N, "data": {...}}` | Navigate to a screen |
+| Backend → App | `{"type": "tts", "text": "..."}` | Speak via Temi (temi mode) |
+| Backend → App | `{"type": "tts_active", "active": bool}` | Lock/unlock buttons (local mode) |
+| App → Backend | `{"type": "action", "action": "...", "data": {...}}` | Button press |
+| App → Backend | `{"type": "tts_status", "status": "start\|stop"}` | Temi speaking start/stop |
 
 ## Page IDs Reference
 

@@ -21,6 +21,7 @@ import androidx.compose.ui.unit.sp
 @Composable
 fun MeasureIntroScreen(
     data: Map<String, String>,
+    ttsLocked: Boolean = false,
     onContinue: () -> Unit
 ) {
     Box(modifier = Modifier.fillMaxSize()) {
@@ -39,6 +40,7 @@ fun MeasureIntroScreen(
             Spacer(modifier = Modifier.height(48.dp))
             Button(
                 onClick = onContinue,
+                enabled = !ttsLocked,
                 modifier = Modifier.size(width = 260.dp, height = 68.dp)
             ) {
                 Text("Continue", fontSize = 32.sp)
