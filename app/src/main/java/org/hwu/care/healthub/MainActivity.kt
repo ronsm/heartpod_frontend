@@ -32,7 +32,7 @@ class MainActivity : ComponentActivity(), OnRobotReadyListener {
     //   Real Temi:  ws://<host-machine-LAN-IP>:8000  (e.g. 192.168.2.x)
     // -------------------------------------------------------------------------
     companion object {
-        const val BACKEND_URL = "ws://10.0.2.2:8000"
+        const val BACKEND_URL = "ws://192.168.2.142:8000"
     }
 
     // Null on emulator — all calls are guarded with ?.
@@ -49,7 +49,10 @@ class MainActivity : ComponentActivity(), OnRobotReadyListener {
         robot?.addOnRobotReadyListener(this)
 
         comms.start(BACKEND_URL) { newState ->
-            runOnUiThread { appState.value = newState }
+            runOnUiThread {
+                appState.value = newState
+                newState.data["location"]?.takeIf { it.isNotBlank() }?.let { temi.navigateTo(it) }
+            }
         }
 
         comms.onTtsText = { text ->

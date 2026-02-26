@@ -1,7 +1,10 @@
 package org.hwu.care.healthub.core
 
+import android.util.Log
 import com.robotemi.sdk.Robot
 import com.robotemi.sdk.TtsRequest
+
+private const val TAG = "TemiControllerImpl"
 
 class TemiControllerImpl : TemiController, Robot.TtsListener {
 
@@ -38,6 +41,17 @@ class TemiControllerImpl : TemiController, Robot.TtsListener {
     }
 
     override fun navigateTo(location: String) {
-        robot?.goTo(location)
+        if (robot == null) {
+            Log.d(TAG, "navigateTo($location): skipped — no robot (emulator)")
+            return
+        }
+        val target = location.lowercase().trim()
+        val saved = robot.locations
+        Log.d(TAG, "navigateTo($target): saved locations = $saved")
+        if (target in saved) {
+            robot.goTo(target)
+        } else {
+            Log.w(TAG, "navigateTo($target): location not found in saved locations")
+        }
     }
 }
