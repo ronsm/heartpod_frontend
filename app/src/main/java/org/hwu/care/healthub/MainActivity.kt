@@ -151,6 +151,7 @@ fun HealthubApp(
             PageId.SCALE_INTRO ->
                 DeviceInstructionScreen(
                     deviceId = state.data["device"] ?: "",
+                    videoId = state.data["video_id"] ?: "",
                     ttsLocked = ttsLocked,
                     onReady = { onUserAction("ready", emptyMap()) }
                 )
@@ -195,7 +196,6 @@ fun HealthubApp(
         if (state.pageId != PageId.IDLE) {
             OutlinedButton(
                 onClick = { onUserAction("reset", emptyMap()) },
-                enabled = !ttsLocked,
                 modifier = Modifier
                     .align(Alignment.BottomStart)
                     .padding(16.dp),

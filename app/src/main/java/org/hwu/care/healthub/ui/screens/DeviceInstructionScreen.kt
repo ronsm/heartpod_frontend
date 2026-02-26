@@ -15,10 +15,8 @@ import com.pierfrancescosoffritti.androidyoutubeplayer.core.player.YouTubePlayer
 import com.pierfrancescosoffritti.androidyoutubeplayer.core.player.listeners.AbstractYouTubePlayerListener
 import com.pierfrancescosoffritti.androidyoutubeplayer.core.player.views.YouTubePlayerView
 
-private const val VIDEO_ID = "eEzD-Y97ges"
-
 @Composable
-fun DeviceInstructionScreen(deviceId: String, ttsLocked: Boolean = false, onReady: () -> Unit) {
+fun DeviceInstructionScreen(deviceId: String, videoId: String, ttsLocked: Boolean = false, onReady: () -> Unit) {
     val lifecycleOwner = LocalLifecycleOwner.current
 
     Column(
@@ -33,7 +31,7 @@ fun DeviceInstructionScreen(deviceId: String, ttsLocked: Boolean = false, onRead
                     lifecycleOwner.lifecycle.addObserver(this)
                     addYouTubePlayerListener(object : AbstractYouTubePlayerListener() {
                         override fun onReady(youTubePlayer: YouTubePlayer) {
-                            youTubePlayer.loadVideo(VIDEO_ID, 0f)
+                            youTubePlayer.loadVideo(videoId, 0f)
                         }
                     })
                 }
@@ -52,5 +50,5 @@ fun DeviceInstructionScreen(deviceId: String, ttsLocked: Boolean = false, onRead
 @Preview(widthDp = 1280, heightDp = 800, showBackground = true)
 @Composable
 private fun DeviceInstructionScreenPreview() {
-    DeviceInstructionScreen(deviceId = "Oximeter", onReady = {})
+    DeviceInstructionScreen(deviceId = "Oximeter", videoId = "eEzD-Y97ges", onReady = {})
 }
