@@ -20,6 +20,7 @@ import androidx.compose.ui.unit.sp
 @Composable
 fun ReadingDisplayScreen(
     data: Map<String, String>,
+    ttsLocked: Boolean = false,
     onAction: (String) -> Unit
 ) {
     val value = data["value"] ?: "--"
@@ -35,10 +36,10 @@ fun ReadingDisplayScreen(
         Text("$value $unit", fontSize = 48.sp)
         Spacer(modifier = Modifier.height(32.dp))
         Row(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
-            Button(onClick = { onAction("retry") }) {
+            Button(onClick = { onAction("retry") }, enabled = !ttsLocked) {
                 Text("Retry", fontSize = 32.sp)
             }
-            Button(onClick = { onAction("confirm") }) {
+            Button(onClick = { onAction("confirm") }, enabled = !ttsLocked) {
                 Text("Confirm", fontSize = 32.sp)
             }
         }

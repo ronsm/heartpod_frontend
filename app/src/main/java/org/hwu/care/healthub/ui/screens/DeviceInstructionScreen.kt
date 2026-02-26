@@ -18,7 +18,7 @@ import com.pierfrancescosoffritti.androidyoutubeplayer.core.player.views.YouTube
 private const val VIDEO_ID = "eEzD-Y97ges"
 
 @Composable
-fun DeviceInstructionScreen(deviceId: String, onReady: () -> Unit) {
+fun DeviceInstructionScreen(deviceId: String, ttsLocked: Boolean = false, onReady: () -> Unit) {
     val lifecycleOwner = LocalLifecycleOwner.current
 
     Column(
@@ -43,7 +43,7 @@ fun DeviceInstructionScreen(deviceId: String, onReady: () -> Unit) {
                 .height(450.dp)
         )
         Spacer(modifier = Modifier.height(32.dp))
-        Button(onClick = onReady) {
+        Button(onClick = onReady, enabled = !ttsLocked) {
             Text("I'm Ready", fontSize = 32.sp)
         }
     }

@@ -41,6 +41,7 @@ class MainActivity : ComponentActivity(), OnRobotReadyListener {
     private val comms = WebSocketClient()
 
     private val appState = mutableStateOf(AppState(pageId = PageId.IDLE))
+    private val isTtsSpeaking = mutableStateOf(false)
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -51,11 +52,25 @@ class MainActivity : ComponentActivity(), OnRobotReadyListener {
             runOnUiThread { appState.value = newState }
         }
 
+        comms.onTtsText = { text ->
+            runOnUiThread { isTtsSpeaking.value = true }
+            comms.sendTtsStatus("start")
+            temi.speak(text) {
+                runOnUiThread { isTtsSpeaking.value = false }
+                comms.sendTtsStatus("stop")
+            }
+        }
+
+        comms.onTtsActive = { active ->
+            runOnUiThread { isTtsSpeaking.value = active }
+        }
+
         setContent {
             MaterialTheme {
                 Surface(modifier = Modifier.fillMaxSize()) {
                     HealthubApp(
                         state = appState.value,
+                        ttsLocked = isTtsSpeaking.value,
                         onUserAction = ::handleUserAction
                     )
                 }
@@ -76,6 +91,16 @@ class MainActivity : ComponentActivity(), OnRobotReadyListener {
         }
     }
 
+    override fun onStart() {
+        super.onStart()
+        temi.onStart()
+    }
+
+    override fun onStop() {
+        super.onStop()
+        temi.onStop()
+    }
+
     override fun onDestroy() {
         super.onDestroy()
         comms.stop()
@@ -84,18 +109,24 @@ class MainActivity : ComponentActivity(), OnRobotReadyListener {
 }
 
 @Composable
-fun HealthubApp(state: AppState, onUserAction: (String, Map<String, String>) -> Unit) {
+fun HealthubApp(
+    state: AppState,
+    ttsLocked: Boolean,
+    onUserAction: (String, Map<String, String>) -> Unit
+) {
     Box(modifier = Modifier.fillMaxSize()) {
         when (state.pageId) {
             // screens below
             PageId.IDLE ->
                 IdleScreen(
+                    ttsLocked = ttsLocked,
                     onStart = { onUserAction("start", emptyMap()) }
                 )
 
             PageId.WELCOME ->
                 WelcomeScreen(
                     data = state.data,
+                    ttsLocked = ttsLocked,
                     onAccept = { onUserAction("confirm", emptyMap()) },
                     onReject = { onUserAction("exit", emptyMap()) }
                 )
@@ -103,6 +134,7 @@ fun HealthubApp(state: AppState, onUserAction: (String, Map<String, String>) -> 
             PageId.Q1, PageId.Q2, PageId.Q3 ->
                 QuestionnaireScreen(
                     data = state.data,
+                    ttsLocked = ttsLocked,
                     onAnswer = { answer -> onUserAction("answer", mapOf("answer" to answer)) },
                     onSkip = { onUserAction("skip", emptyMap()) }
                 )
@@ -110,6 +142,7 @@ fun HealthubApp(state: AppState, onUserAction: (String, Map<String, String>) -> 
             PageId.MEASURE_INTRO ->
                 MeasureIntroScreen(
                     data = state.data,
+                    ttsLocked = ttsLocked,
                     onContinue = { onUserAction("confirm", emptyMap()) }
                 )
 
@@ -118,6 +151,7 @@ fun HealthubApp(state: AppState, onUserAction: (String, Map<String, String>) -> 
             PageId.SCALE_INTRO ->
                 DeviceInstructionScreen(
                     deviceId = state.data["device"] ?: "",
+                    ttsLocked = ttsLocked,
                     onReady = { onUserAction("ready", emptyMap()) }
                 )
 
@@ -133,12 +167,14 @@ fun HealthubApp(state: AppState, onUserAction: (String, Map<String, String>) -> 
             PageId.SCALE_DONE ->
                 ReadingDisplayScreen(
                     data = state.data,
+                    ttsLocked = ttsLocked,
                     onAction = { action -> onUserAction(action, emptyMap()) }
                 )
 
             PageId.RECAP ->
                 ConfirmSessionScreen(
                     data = state.data,
+                    ttsLocked = ttsLocked,
                     onContinue = { onUserAction("continue", emptyMap()) },
                     onFinish = { onUserAction("finish", emptyMap()) }
                 )
@@ -146,6 +182,7 @@ fun HealthubApp(state: AppState, onUserAction: (String, Map<String, String>) -> 
             PageId.SORRY ->
                 ErrorScreen(
                     message = state.data["message"] ?: "Something went wrong.",
+                    ttsLocked = ttsLocked,
                     onRetry = { onUserAction("retry", emptyMap()) },
                     onExit = { onUserAction("exit", emptyMap()) }
                 )
@@ -158,6 +195,7 @@ fun HealthubApp(state: AppState, onUserAction: (String, Map<String, String>) -> 
         if (state.pageId != PageId.IDLE) {
             OutlinedButton(
                 onClick = { onUserAction("reset", emptyMap()) },
+                enabled = !ttsLocked,
                 modifier = Modifier
                     .align(Alignment.BottomStart)
                     .padding(16.dp),

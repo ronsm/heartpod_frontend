@@ -29,6 +29,7 @@ import androidx.compose.ui.unit.sp
 @Composable
 fun ConfirmSessionScreen(
     data: Map<String, String>,
+    ttsLocked: Boolean = false,
     onContinue: () -> Unit,
     onFinish: () -> Unit
 ) {
@@ -72,6 +73,7 @@ fun ConfirmSessionScreen(
         Row(horizontalArrangement = Arrangement.spacedBy(32.dp)) {
             Button(
                 onClick = onFinish,
+                enabled = !ttsLocked,
                 modifier = Modifier.size(width = 200.dp, height = 60.dp),
                 colors = ButtonDefaults.buttonColors(containerColor = Color.Gray)
             ) {
@@ -79,6 +81,7 @@ fun ConfirmSessionScreen(
             }
             Button(
                 onClick = onContinue,
+                enabled = !ttsLocked,
                 modifier = Modifier.size(width = 200.dp, height = 60.dp),
                 colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF4CAF50))
             ) {

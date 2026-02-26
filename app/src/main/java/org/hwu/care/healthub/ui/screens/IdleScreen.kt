@@ -11,7 +11,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 
 @Composable
-fun IdleScreen(onStart: () -> Unit) {
+fun IdleScreen(ttsLocked: Boolean = false, onStart: () -> Unit) {
     Box(modifier = Modifier.fillMaxSize()) {
         Column(
             modifier = Modifier.fillMaxSize(),
@@ -22,6 +22,7 @@ fun IdleScreen(onStart: () -> Unit) {
             Spacer(modifier = Modifier.height(32.dp))
             Button(
                 onClick = onStart,
+                enabled = !ttsLocked,
                 modifier = Modifier.size(width = 300.dp, height = 80.dp)
             ) {
                 Text("Start Screening", fontSize = 32.sp)
