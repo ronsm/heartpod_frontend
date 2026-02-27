@@ -32,7 +32,7 @@ class MainActivity : ComponentActivity(), OnRobotReadyListener {
     //   Real Temi:  ws://<host-machine-LAN-IP>:8000  (e.g. 192.168.2.x)
     // -------------------------------------------------------------------------
     companion object {
-        const val BACKEND_URL = "ws://192.168.2.142:8000"
+        const val BACKEND_URL = "ws://192.168.2.116:8000"
     }
 
     // Null on emulator — all calls are guarded with ?.
