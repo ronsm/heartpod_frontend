@@ -54,8 +54,8 @@ fun DeviceInstructionScreen(
                 }
             },
             modifier = Modifier
-                .width(1200.dp)
-                .height(675.dp)
+                .width(600.dp)
+                .height(337.5.dp)
         )
         Spacer(modifier = Modifier.height(32.dp))
         Button(

@@ -45,8 +45,8 @@ fun WelcomeScreen(
         ) {
             Text(
                 text = message,
-                fontSize = 36.sp,
-                lineHeight = 43.sp,
+                fontSize = 27.sp,
+                lineHeight = 32.sp,
                 textAlign = TextAlign.Center
             )
         }
@@ -62,7 +62,7 @@ fun WelcomeScreen(
                 modifier = Modifier.size(width = 260.dp, height = 72.dp),
                 colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFF44336))
             ) {
-                Text("No Thanks", fontSize = 32.sp)
+                Text("No Thanks", fontSize = 24.sp)
             }
             Button(
                 onClick = onAccept,
@@ -70,7 +70,7 @@ fun WelcomeScreen(
                 modifier = Modifier.size(width = 260.dp, height = 72.dp),
                 colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF4CAF50))
             ) {
-                Text("Continue", fontSize = 32.sp)
+                Text("Continue", fontSize = 24.sp)
             }
         }
     }

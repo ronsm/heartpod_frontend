@@ -5,11 +5,12 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -33,6 +34,8 @@ fun ConfirmSessionScreen(
     onContinue: () -> Unit,
     onFinish: () -> Unit
 ) {
+    var showGoodbye by remember { mutableStateOf(false) }
+
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -70,22 +73,33 @@ fun ConfirmSessionScreen(
 
         Spacer(modifier = Modifier.height(24.dp))
 
+        if (showGoodbye) {
+            Text(
+                text = "We have reached the end, goodbye!",
+                fontSize = 32.sp,
+                textAlign = TextAlign.Center,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(bottom = 16.dp)
+            )
+        }
+
         Row(horizontalArrangement = Arrangement.spacedBy(32.dp)) {
             Button(
                 onClick = onFinish,
                 enabled = !ttsLocked,
                 modifier = Modifier.size(width = 200.dp, height = 60.dp),
-                colors = ButtonDefaults.buttonColors(containerColor = Color.Gray)
+                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF2196F3))
             ) {
                 Text("Finish", fontSize = 32.sp)
             }
             Button(
-                onClick = onContinue,
-                enabled = !ttsLocked,
+                onClick = { showGoodbye = true },
+                enabled = !ttsLocked && !showGoodbye,
                 modifier = Modifier.size(width = 200.dp, height = 60.dp),
                 colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF4CAF50))
             ) {
-                Text("Continue", fontSize = 32.sp)
+                Text("Goodbye", fontSize = 32.sp)
             }
         }
     }

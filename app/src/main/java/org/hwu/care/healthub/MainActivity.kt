@@ -183,7 +183,7 @@ fun HealthubApp(
                     data = state.data,
                     ttsLocked = ttsLocked,
                     onContinue = { onUserAction("continue", emptyMap()) },
-                    onFinish = { onUserAction("finish", emptyMap()) }
+                    onFinish = { onUserAction("start", emptyMap()) }
                 )
 
             PageId.SORRY ->
