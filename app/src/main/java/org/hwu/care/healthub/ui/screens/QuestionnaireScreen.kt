@@ -48,7 +48,7 @@ fun QuestionnaireScreen(
                 .weight(1f),
             contentAlignment = Alignment.Center
         ) {
-            Text(question, fontSize = 32.sp, lineHeight = 38.sp)
+            Text(question, fontSize = 42.sp, lineHeight = 50.sp)
         }
 
         // Bottom: option buttons + Skip
@@ -56,9 +56,10 @@ fun QuestionnaireScreen(
             Button(
                 onClick = { onAnswer(option) },
                 enabled = !ttsLocked,
-                modifier = Modifier.fillMaxWidth().height(60.dp)
+                modifier = Modifier.fillMaxWidth().height(60.dp),
+                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF4CAF50))
             ) {
-                Text(option, fontSize = 28.sp)
+                Text(option, fontSize = 34.sp)
             }
             Spacer(modifier = Modifier.height(12.dp))
         }
@@ -69,9 +70,9 @@ fun QuestionnaireScreen(
             onClick = onSkip,
             enabled = !ttsLocked,
             modifier = Modifier.fillMaxWidth(.7f).height(60.dp),
-            colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFB0BEC5))
+            colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF9E9E9E))
         ) {
-            Text("Skip", fontSize = 28.sp)
+            Text("Skip", fontSize = 34.sp)
         }
     }
 }

@@ -95,6 +95,13 @@ class WebSocketClient : CommsClient {
         webSocket?.send(msg)
     }
 
+    fun sendVideoEnded() {
+        val msg = JSONObject().apply {
+            put("type", "video_ended")
+        }.toString()
+        webSocket?.send(msg)
+    }
+
     override fun sendAction(action: String, data: Map<String, String>) {
         val msg = JSONObject().apply {
             put("type", "action")

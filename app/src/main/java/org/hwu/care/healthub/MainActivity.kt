@@ -74,7 +74,8 @@ class MainActivity : ComponentActivity(), OnRobotReadyListener {
                     HealthubApp(
                         state = appState.value,
                         ttsLocked = isTtsSpeaking.value,
-                        onUserAction = ::handleUserAction
+                        onUserAction = ::handleUserAction,
+                        onVideoEnded = comms::sendVideoEnded
                     )
                 }
             }
@@ -115,7 +116,8 @@ class MainActivity : ComponentActivity(), OnRobotReadyListener {
 fun HealthubApp(
     state: AppState,
     ttsLocked: Boolean,
-    onUserAction: (String, Map<String, String>) -> Unit
+    onUserAction: (String, Map<String, String>) -> Unit,
+    onVideoEnded: () -> Unit
 ) {
     Box(modifier = Modifier.fillMaxSize()) {
         when (state.pageId) {
@@ -131,7 +133,7 @@ fun HealthubApp(
                     data = state.data,
                     ttsLocked = ttsLocked,
                     onAccept = { onUserAction("confirm", emptyMap()) },
-                    onReject = { onUserAction("exit", emptyMap()) }
+                    onReject = { onUserAction("reset", emptyMap()) }
                 )
 
             PageId.Q1, PageId.Q2, PageId.Q3 ->
@@ -156,7 +158,8 @@ fun HealthubApp(
                     deviceId = state.data["device"] ?: "",
                     videoId = state.data["video_id"] ?: "",
                     ttsLocked = ttsLocked,
-                    onReady = { onUserAction("ready", emptyMap()) }
+                    onReady = { onUserAction("ready", emptyMap()) },
+                    onVideoEnded = onVideoEnded
                 )
 
             PageId.OXIMETER_READING,

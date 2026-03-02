@@ -2,10 +2,13 @@ package org.hwu.care.healthub.ui.screens
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -35,13 +38,16 @@ fun MeasureIntroScreen(
             Text(
                 text = data["message"] ?: "",
                 fontSize = 32.sp,
-                lineHeight = 38.sp
+                lineHeight = 38.sp,
+                textAlign = TextAlign.Justify,
+                modifier = Modifier.fillMaxWidth(0.5f)
             )
             Spacer(modifier = Modifier.height(48.dp))
             Button(
                 onClick = onContinue,
                 enabled = !ttsLocked,
-                modifier = Modifier.size(width = 260.dp, height = 68.dp)
+                modifier = Modifier.size(width = 260.dp, height = 68.dp),
+                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF4CAF50))
             ) {
                 Text("Continue", fontSize = 32.sp)
             }

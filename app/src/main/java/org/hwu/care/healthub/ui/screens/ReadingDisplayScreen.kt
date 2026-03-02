@@ -2,10 +2,12 @@ package org.hwu.care.healthub.ui.screens
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -36,11 +38,19 @@ fun ReadingDisplayScreen(
         Text("$value $unit", fontSize = 48.sp)
         Spacer(modifier = Modifier.height(32.dp))
         Row(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
-            Button(onClick = { onAction("retry") }, enabled = !ttsLocked) {
+            Button(
+                onClick = { onAction("retry") },
+                enabled = !ttsLocked,
+                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFF44336))
+            ) {
                 Text("Retry", fontSize = 32.sp)
             }
-            Button(onClick = { onAction("confirm") }, enabled = !ttsLocked) {
-                Text("Confirm", fontSize = 32.sp)
+            Button(
+                onClick = { onAction("confirm") },
+                enabled = !ttsLocked,
+                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF4CAF50))
+            ) {
+                Text("Continue", fontSize = 32.sp)
             }
         }
     }

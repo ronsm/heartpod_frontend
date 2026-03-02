@@ -47,7 +47,8 @@ fun ErrorScreen(
             Button(
                 onClick = onRetry,
                 enabled = !ttsLocked,
-                modifier = Modifier.size(width = 200.dp, height = 60.dp)
+                modifier = Modifier.size(width = 200.dp, height = 60.dp),
+                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF4CAF50))
             ) {
                 Text("Try Again", fontSize = 32.sp)
             }
