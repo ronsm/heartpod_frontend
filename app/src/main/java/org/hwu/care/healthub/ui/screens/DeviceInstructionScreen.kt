@@ -28,12 +28,7 @@ fun DeviceInstructionScreen(
 ) {
     val lifecycleOwner = LocalLifecycleOwner.current
 
-    Column(
-        modifier = Modifier.fillMaxSize().padding(16.dp),
-        horizontalAlignment = Alignment.CenterHorizontally
-    ) {
-        Text("Instructions for ${deviceId.replaceFirstChar { it.uppercase() }}", fontSize = 48.sp)
-        Spacer(modifier = Modifier.height(16.dp))
+    Box(modifier = Modifier.fillMaxSize().padding(24.dp)) {
         AndroidView(
             factory = { context ->
                 YouTubePlayerView(context).apply {
@@ -53,15 +48,22 @@ fun DeviceInstructionScreen(
                     })
                 }
             },
-            modifier = Modifier
-                .width(600.dp)
-                .height(337.5.dp)
+            modifier = Modifier.fillMaxSize()
         )
-        Spacer(modifier = Modifier.height(32.dp))
+        Text(
+            "Instructions for ${deviceId.replaceFirstChar { it.uppercase() }}",
+            fontSize = 48.sp,
+            modifier = Modifier
+                .align(Alignment.TopCenter)
+                .padding(top = 16.dp)
+        )
         Button(
             onClick = onReady,
             enabled = !ttsLocked,
-            colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF4CAF50))
+            colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF4CAF50)),
+            modifier = Modifier
+                .align(Alignment.BottomCenter)
+                .padding(bottom = 16.dp)
         ) {
             Text("Ready", fontSize = 32.sp)
         }

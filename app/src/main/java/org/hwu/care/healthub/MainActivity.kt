@@ -48,6 +48,8 @@ class MainActivity : ComponentActivity(), OnRobotReadyListener {
 
         robot?.addOnRobotReadyListener(this)
 
+        temi.onNavigationComplete = { comms.sendGoToComplete() }
+
         comms.start(BACKEND_URL) { newState ->
             runOnUiThread {
                 appState.value = newState
