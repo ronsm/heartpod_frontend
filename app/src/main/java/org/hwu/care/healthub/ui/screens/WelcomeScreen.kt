@@ -47,7 +47,8 @@ fun WelcomeScreen(
                 text = message,
                 fontSize = 27.sp,
                 lineHeight = 32.sp,
-                textAlign = TextAlign.Center
+                textAlign = TextAlign.Justify,
+                modifier = Modifier.fillMaxWidth(0.8f)
             )
         }
 
