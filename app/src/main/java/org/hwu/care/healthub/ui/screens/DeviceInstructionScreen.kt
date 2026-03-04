@@ -48,7 +48,7 @@ fun DeviceInstructionScreen(
                     })
                 }
             },
-            modifier = Modifier.fillMaxSize()
+            modifier = Modifier.align(Alignment.Center).fillMaxSize(0.8F)
         )
         Text(
             "Instructions for ${deviceId.replaceFirstChar { it.uppercase() }}",
